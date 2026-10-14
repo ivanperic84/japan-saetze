@@ -38,6 +38,12 @@ header p{margin:2px 0 0;color:var(--muted);font-size:.9rem}
 .card .hint{color:var(--muted);font-size:.85rem;margin:0}
 .ans{display:flex;flex-direction:column;gap:6px;border-top:1px dashed var(--line);padding-top:14px}
 .romaji{font-size:1.5rem;font-weight:700;color:var(--ai);margin:0;overflow-wrap:anywhere}
+.w{font:inherit;color:inherit;background:none;border:0;padding:0 1px;border-bottom:2px dotted var(--line);cursor:pointer;border-radius:3px}
+.w[aria-pressed="true"]{background:var(--ai-soft);border-bottom-color:var(--ai)}
+.wordbox{background:var(--ai-soft);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.wordbox b{color:var(--ai);font-size:1.05rem}
+.wordbox span{font-size:.95rem}
+.wordbox .wk{font-family:var(--f-jp);color:var(--muted);font-size:.95rem}
 .kana{font-family:var(--f-jp);font-size:1.25rem;margin:0}
 .note{color:var(--muted);font-size:.9rem;margin:0}
 .speak{align-self:flex-start;font:inherit;font-weight:700;border:0;background:var(--ai-soft);color:var(--ai);padding:10px 16px;border-radius:10px;cursor:pointer}
@@ -63,7 +69,7 @@ button:focus-visible,.card:focus-visible{outline:3px solid var(--ai);outline-off
 <div class="wrap">
   <header>
     <h1>Japan Reisesätze</h1>
-    <p>Karte antippen → Japanisch erscheint. 🔊 spielt die Aussprache ab.</p>
+    <p>Karte antippen → Japanisch erscheint. Einzelnes Wort antippen → Bedeutung. 🔊 spielt die Aussprache ab.</p>
   </header>
   <p class="warn" id="voiceWarn" hidden>Keine japanische Stimme gefunden. Android: Einstellungen → «Text-in-Sprache» → Google-Sprachausgabe → Sprachdaten installieren → Japanisch.</p>
   <div class="chips" id="chips"></div>
@@ -82,6 +88,127 @@ button:focus-visible,.card:focus-visible{outline:3px solid var(--ai);outline-off
 </div>
 
 <script>
+// Wörterbuch: Lautschrift → [Japanisch, Bedeutung]
+const GLOSS = {
+  "konnichiwa":["こんにちは","Hallo / Guten Tag"],
+  "ohayō":["おはよう","Guten Morgen"],
+  "gozaimasu":["ございます","Höflichkeitsform (macht den Satz höflicher)"],
+  "arigatō":["ありがとう","danke"],
+  "sumimasen":["すみません","Entschuldigung"],
+  "hai":["はい","ja"],
+  "iie":["いいえ","nein"],
+  "nihongo":["日本語","Japanisch (Sprache)"],
+  "ga":["が","Partikel: markiert das Subjekt"],
+  "wakarimasen":["わかりません","verstehe nicht"],
+  "eigo":["英語","Englisch"],
+  "o":["を","Partikel: markiert das Objekt"],
+  "hanasemasu":["話せます","kann sprechen"],
+  "ka":["か","Fragepartikel (macht einen Satz zur Frage)"],
+  "onegaishimasu":["お願いします","bitte (Bitte um etwas)"],
+  "sayōnara":["さようなら","Auf Wiedersehen"],
+  "suisu":["スイス","Schweiz"],
+  "kara":["から","aus / von"],
+  "kimashita":["来ました","bin gekommen"],
+  "futari":["二人","zwei Personen"],
+  "hitori":["一人","eine Person"],
+  "desu":["です","ist / bin (höfliche Satzendung)"],
+  "deshita":["でした","war (Vergangenheit von desu)"],
+  "kore":["これ","das hier"],
+  "kudasai":["ください","bitte geben Sie mir"],
+  "okaikei":["お会計","Rechnung"],
+  "omizu":["お水","Wasser"],
+  "biiru":["ビール","Bier"],
+  "hitotsu":["一つ","ein Stück"],
+  "futatsu":["二つ","zwei Stück"],
+  "oishikatta":["おいしかった","war lecker"],
+  "gochisōsama":["ごちそうさま","Danke für das Essen"],
+  "itadakimasu":["いただきます","Guten Appetit (wörtlich: ich empfange)"],
+  "kādo":["カード","Karte (Kreditkarte)"],
+  "de":["で","Partikel: mit / per / in"],
+  "ii":["いい","gut / in Ordnung"],
+  "niku":["肉","Fleisch"],
+  "nashi":["なし","ohne"],
+  "wa":["は","Partikel: markiert das Thema"],
+  "doko":["どこ","wo"],
+  "eki":["駅","Bahnhof"],
+  "toire":["トイレ","Toilette"],
+  "kono":["この","dieser / diese"],
+  "densha":["電車","Zug"],
+  "ni":["に","Partikel: nach / zu (Richtung) – als Zahl: 2"],
+  "ikimasu":["行きます","fährt / geht"],
+  "nanban-sen":["何番線","welches Gleis"],
+  "made":["まで","bis / nach"],
+  "ichimai":["一枚","ein Stück (für flache Dinge, z. B. Ticket)"],
+  "koko":["ここ","hier"],
+  "migi":["右","rechts"],
+  "hidari":["左","links"],
+  "massugu":["まっすぐ","geradeaus"],
+  "tōi":["遠い","weit"],
+  "tōkyō":["東京","Tokio"],
+  "kakunodate":["角館","Kakunodate"],
+  "kanazawa":["金沢","Kanazawa"],
+  "kyōto":["京都","Kyoto"],
+  "ōsaka":["大阪","Osaka"],
+  "shinkansen":["新幹線","Schnellzug (Shinkansen)"],
+  "no":["の","Partikel: von / des (Besitz)"],
+  "noriba":["乗り場","Einstiegsort / Bahnsteig"],
+  "shitei-seki":["指定席","reservierter Sitzplatz"],
+  "jiyū-seki":["自由席","freier (nicht reservierter) Sitzplatz"],
+  "bukeyashiki":["武家屋敷","Samurai-Häuser"],
+  "kenroku-en":["兼六園","Kenroku-en (Garten)"],
+  "fushimi":["伏見","Fushimi (Stadtteil)"],
+  "inari":["稲荷","Inari (Reis-Gottheit)"],
+  "taisha":["大社","grosser Schrein"],
+  "kiyomizu-dera":["清水寺","Kiyomizu-Tempel (dera = Tempel)"],
+  "dōtonbori":["道頓堀","Dōtonbori (Ausgehviertel)"],
+  "shinjuku":["新宿","Shinjuku (Stadtteil)"],
+  "asakusa":["浅草","Asakusa (Stadtteil)"],
+  "ichi":["いち","1"],
+  "san":["さん","3"],
+  "yon":["よん","4"],
+  "go":["ご","5"],
+  "roku":["ろく","6"],
+  "nana":["なな","7"],
+  "hachi":["はち","8"],
+  "kyū":["きゅう","9"],
+  "jū":["じゅう","10"],
+  "hyaku":["ひゃく","100"],
+  "sen":["せん","1000"],
+  "ichiman":["いちまん","10 000"],
+  "en":["えん","Yen"],
+  "nanji":["何時","wie viel Uhr"],
+  "ikura":["いくら","wie viel (Preis)"],
+  "shimasu":["します","mache / nehme"],
+  "miteru":["見てる","schaue"],
+  "dake":["だけ","nur"],
+  "fukuro":["袋","Tüte"],
+  "iranai":["いらない","brauche nicht"],
+  "menzei":["免税","steuerfrei (tax-free)"],
+  "dekimasu":["できます","ist möglich / kann"],
+  "hoka":["他","andere"],
+  "saizu":["サイズ","Grösse"],
+  "arimasu":["あります","gibt es / haben"],
+  "yoyaku":["予約","Reservation"],
+  "shite":["して","gemacht (Form von «tun»)"],
+  "imasu":["います","bin / habe (Zustand)"],
+  "nimotsu":["荷物","Gepäck"],
+  "azukete":["預けて","abgeben / aufbewahren lassen"],
+  "wai-fai":["ワイファイ","WLAN"],
+  "pasuwādo":["パスワード","Passwort"],
+  "chekku-auto":["チェックアウト","Check-out"],
+  "tasukete":["助けて","Hilfe!"],
+  "isha":["医者","Arzt"],
+  "yonde":["呼んで","rufen"],
+  "michi":["道","Weg / Strasse"],
+  "mayoimashita":["迷いました","habe mich verirrt"],
+  "nakushimashita":["なくしました","habe verloren"],
+  "byōin":["病院","Krankenhaus"],
+  "yakkyoku":["薬局","Apotheke"],
+  "arerugī":["アレルギー","Allergie"],
+  "ja":["じゃ","also / dann"],
+  "mata":["また","wieder / bis dann"]
+};
+
 // [Deutsch, Lautschrift, Japanisch, Hinweis, (optional) Aussprache in Hiragana]
 const DATA = {
   "Grundlagen":[
@@ -181,6 +308,10 @@ const $=id=>document.getElementById(id);
 const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const key=(c,i)=>c+"#"+i;
 const sayText=r=>r[4]||r[2];
+const wkey=t=>t.toLowerCase().replace(/[?!.,…«»]/g,"");
+function romajiHTML(ro){
+  return ro.split(/(\s+|\/)/).map(t=>{const k=wkey(t);return GLOSS[k]?`<button class="w" data-w="${esc(k)}">${esc(t)}</button>`:esc(t)}).join("");
+}
 
 let jaVoice=null;
 function loadVoices(){
@@ -228,7 +359,8 @@ function draw(){
     <div class="card" id="card" tabindex="0" role="button" aria-label="Karte aufdecken">
       <p class="de">${esc(de)}</p>
       ${open?`<div class="ans">
-        <p class="romaji">${esc(ro)}</p>
+        <p class="romaji">${romajiHTML(ro)}</p>
+        <div class="wordbox" id="wordbox" hidden></div>
         <p class="kana" lang="ja">${esc(ka)}</p>
         ${no?`<p class="note">${esc(no)}</p>`:""}
         <button class="speak" id="say">🔊 Anhören</button>
@@ -240,7 +372,16 @@ function draw(){
     </div>`:""}`;
   const card=$("card");
   const reveal=()=>{if(!open){open=true;draw();speak(sayText(r))}};
-  card.onclick=e=>{if(e.target.closest("#say"))return;reveal()};
+  card.onclick=e=>{
+    if(e.target.closest("#say"))return;
+    const w=e.target.closest(".w");
+    if(w){
+      const [kana,de]=GLOSS[w.dataset.w], box=$("wordbox");
+      card.querySelectorAll(".w").forEach(b=>b.setAttribute("aria-pressed",b===w));
+      box.innerHTML=`<b>${esc(w.textContent.replace(/[?!.,…«»]/g,""))}</b><span>${esc(de)}</span><span class="wk" lang="ja">${esc(kana)}</span>`;
+      box.hidden=false; speak(kana); return;
+    }
+    reveal()};
   card.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();reveal()}};
   if(open){
     $("say").onclick=e=>{e.stopPropagation();speak(sayText(r))};

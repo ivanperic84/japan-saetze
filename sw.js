@@ -1,5 +1,5 @@
 // Speichert die App auf dem Handy, damit sie offline funktioniert.
-const CACHE = "japan-saetze-v3";
+const CACHE = "japan-saetze-v4";
 const FILES = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png"];
 
 self.addEventListener("install", e => {

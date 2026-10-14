@@ -4,127 +4,270 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Japan Reisesätze</title>
-<meta name="theme-color" content="#2b4a7e">
+<meta name="theme-color" content="#faf8ff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121318" media="(prefers-color-scheme: dark)">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
-/* Layout: one-column card trainer, category chips on top, big flip card, action row at thumb height */
-*{box-sizing:border-box}
+/* Material Design 3 (Material You) – Farbschema aus Indigo-Seed, Motion-Tokens nach M3 */
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{
-  --bg:#eef1f4; --surface:#ffffff; --fg:#1b2333; --muted:#5d6878;
-  --ai:#2b4a7e; --ai-soft:#dfe6f2; --good:#2f7a52; --again:#a5512d; --line:#d3d9e2;
-  --f-jp:"Noto Sans JP","Hiragino Sans","Yu Gothic",sans-serif;
-  --f-body:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+  --primary:#3d5ba9; --on-primary:#ffffff; --primary-container:#dbe1ff; --on-primary-container:#00174b;
+  --secondary-container:#dce2f9; --on-secondary-container:#141b2c;
+  --tertiary-container:#ffd8ec; --on-tertiary-container:#3a0729;
+  --success:#2e6b3f; --success-container:#b3f1be; --on-success-container:#00210c;
+  --error:#ba1a1a; --error-container:#ffdad6; --on-error-container:#410002;
+  --surface:#faf8ff; --surface-low:#f4f3fa; --surface-c:#eeedf4; --surface-high:#e8e7ef; --surface-highest:#e3e2e9;
+  --on-surface:#1a1b21; --on-surface-variant:#45464f; --outline:#757680; --outline-variant:#c5c6d0;
+  --inverse-surface:#2f3036; --inverse-on-surface:#f1f0f7; --inverse-primary:#b4c5ff;
+  --scrim:rgba(0,0,0,.32);
+  --f-body:"Google Sans Text","Google Sans",Roboto,system-ui,-apple-system,sans-serif;
+  --f-jp:"Noto Sans JP","Noto Sans CJK JP","Hiragino Sans","Yu Gothic",sans-serif;
+  --emph:cubic-bezier(.2,0,0,1); --emph-dec:cubic-bezier(.05,.7,.1,1); --emph-acc:cubic-bezier(.3,0,.8,.15);
+  --spring:cubic-bezier(.34,1.45,.64,1);
+  --nav-h:80px;
 }
 @media (prefers-color-scheme:dark){:root{
-  --bg:#121721; --surface:#1b2230; --fg:#e8ecf3; --muted:#9aa5b6;
-  --ai:#8fb0e8; --ai-soft:#24324b; --good:#6cc496; --again:#e39470; --line:#2d3646; color-scheme:dark}}
+  --primary:#b4c5ff; --on-primary:#002a78; --primary-container:#24418f; --on-primary-container:#dbe1ff;
+  --secondary-container:#3c4356; --on-secondary-container:#dce2f9;
+  --tertiary-container:#5a2a4a; --on-tertiary-container:#ffd8ec;
+  --success:#98d5a3; --success-container:#14512a; --on-success-container:#b3f1be;
+  --error:#ffb4ab; --error-container:#93000a; --on-error-container:#ffdad6;
+  --surface:#121318; --surface-low:#1a1b21; --surface-c:#1e1f25; --surface-high:#292a2f; --surface-highest:#34343a;
+  --on-surface:#e3e1e9; --on-surface-variant:#c5c6d0; --outline:#8f909a; --outline-variant:#45464f;
+  --inverse-surface:#e3e1e9; --inverse-on-surface:#2f3036; --inverse-primary:#3d5ba9;
+  --scrim:rgba(0,0,0,.5);
+  color-scheme:dark}}
 [hidden]{display:none!important}
-body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:16px;line-height:1.5}
-.wrap{max-width:560px;margin:0 auto;padding-inline:16px;padding-block:20px 32px;display:flex;flex-direction:column;gap:16px}
-header h1{font-size:1.5rem;margin:0}
-header p{margin:2px 0 0;color:var(--muted);font-size:.9rem}
-.chips{display:flex;flex-wrap:wrap;gap:8px}
-.chip{font:inherit;font-size:.9rem;border:1px solid var(--line);background:var(--surface);color:var(--fg);padding:6px 12px;border-radius:999px;cursor:pointer}
-.chip[aria-pressed="true"]{background:var(--ai);border-color:var(--ai);color:var(--bg)}
-.meta{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:.85rem;font-variant-numeric:tabular-nums;gap:8px;flex-wrap:wrap}
-.meta label{display:flex;align-items:center;gap:6px;cursor:pointer}
-.bar{height:4px;background:var(--line);border-radius:2px;overflow:hidden}
-.bar i{display:block;height:100%;background:var(--good);width:0;transition:width .3s}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:24px 20px;min-height:260px;display:flex;flex-direction:column;justify-content:center;gap:14px;cursor:pointer}
-.card .de{font-size:1.35rem;font-weight:700;margin:0}
-.card .hint{color:var(--muted);font-size:.85rem;margin:0}
-.ans{display:flex;flex-direction:column;gap:6px;border-top:1px dashed var(--line);padding-top:14px}
-.romaji{font-size:1.5rem;font-weight:700;color:var(--ai);margin:0;overflow-wrap:anywhere}
-.w{font:inherit;color:inherit;background:none;border:0;padding:0 1px;border-bottom:2px dotted var(--line);cursor:pointer;border-radius:3px}
-.w[aria-pressed="true"]{background:var(--ai-soft);border-bottom-color:var(--ai)}
-.wordbox{background:var(--ai-soft);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
-.wordbox b{color:var(--ai);font-size:1.05rem}
-.wordbox span{font-size:.95rem}
-.wordbox .wk{font-family:var(--f-jp);color:var(--muted);font-size:.95rem}
-.kana{font-family:var(--f-jp);font-size:1.25rem;margin:0}
-.note{color:var(--muted);font-size:.9rem;margin:0}
-.speak{align-self:flex-start;font:inherit;font-weight:700;border:0;background:var(--ai-soft);color:var(--ai);padding:10px 16px;border-radius:10px;cursor:pointer}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
-.btn{font:inherit;font-weight:700;border-radius:12px;padding:14px;cursor:pointer;border:2px solid transparent}
-.again{background:transparent;border-color:var(--again);color:var(--again)}
-.good{background:var(--good);color:var(--surface)}
-button:focus-visible,.card:focus-visible{outline:3px solid var(--ai);outline-offset:2px}
-.warn{background:var(--ai-soft);color:var(--fg);padding:10px 12px;border-radius:10px;font-size:.88rem;margin:0}
-.list{font-size:.9rem;border-top:1px solid var(--line);padding-top:12px}
-.list summary{cursor:pointer;font-weight:700;color:var(--ai)}
-.list ul{list-style:none;padding:0;margin:10px 0 0;display:flex;flex-direction:column;gap:8px}
-.list li{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
-.list li span{min-width:0}
-.list li b{color:var(--ai)}
-.mini{font:inherit;border:0;background:var(--ai-soft);color:var(--ai);border-radius:8px;padding:6px 10px;cursor:pointer}
-.reset{font:inherit;font-size:.85rem;background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;align-self:center}
-.modes{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px}
-.modes button{font:inherit;font-weight:700;border:0;border-radius:9px;padding:9px;background:none;color:var(--muted);cursor:pointer}
-.modes button[aria-pressed="true"]{background:var(--ai);color:var(--bg)}
-.tools{display:flex;flex-wrap:wrap;gap:8px}
-.micres{margin:0;font-size:.95rem;background:var(--ai-soft);border-radius:10px;padding:10px 12px}
-.micres.ok b{color:var(--good)} .micres.bad b{color:var(--again)}
-.opts{display:flex;flex-direction:column;gap:8px}
-.opt{font:inherit;text-align:left;border:2px solid var(--line);background:var(--surface);color:var(--fg);border-radius:12px;padding:12px 14px;cursor:pointer}
-.opt.right{border-color:var(--good);background:color-mix(in srgb,var(--good) 14%,var(--surface))}
-.opt.wrong{border-color:var(--again);background:color-mix(in srgb,var(--again) 14%,var(--surface))}
-.bigplay{align-self:center;font:inherit;font-size:1.1rem;font-weight:700;border:0;background:var(--ai);color:var(--bg);border-radius:999px;padding:14px 26px;cursor:pointer}
-.own{display:flex;flex-direction:column;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px}
-.own h2{margin:0;font-size:1.05rem}
-.own label{display:flex;flex-direction:column;gap:4px;font-size:.85rem;color:var(--muted)}
-.own input{font:inherit;font-size:1rem;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px}
-.own .tip{margin:0;font-size:.82rem;color:var(--muted)}
-.list li .acts{display:flex;gap:6px}
-.show{position:fixed;inset:0;z-index:10;background:var(--surface);display:flex;flex-direction:column;justify-content:center;align-items:center;gap:18px;text-align:center;padding:calc(24px + env(safe-area-inset-top,0px)) 20px calc(24px + env(safe-area-inset-bottom,0px));cursor:pointer}
-.show-ja{font-family:var(--f-jp);font-size:clamp(2.4rem,11vw,5rem);line-height:1.25;margin:0;font-weight:700;overflow-wrap:anywhere}
-.show-ro{font-size:1.4rem;color:var(--ai);margin:0;font-weight:700}
-.show-de{font-size:1.05rem;color:var(--muted);margin:0}
-.show-hint{position:absolute;bottom:calc(16px + env(safe-area-inset-bottom,0px));font-size:.8rem;color:var(--muted);margin:0}
-.offline{font-size:.8rem;color:var(--muted);text-align:center;margin:0}
-@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+html,body{margin:0;background:var(--surface);color:var(--on-surface);font-family:var(--f-body);font-size:16px;line-height:1.5}
+body{padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom,0px) + 16px);overscroll-behavior-y:none}
+svg{width:24px;height:24px;fill:currentColor;flex:none}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+
+/* Ripple + State layer */
+.rp{position:relative;overflow:hidden;isolation:isolate}
+.rp::after{content:"";position:absolute;inset:0;background:currentColor;opacity:0;transition:opacity .2s var(--emph);pointer-events:none;z-index:-1}
+@media (hover:hover){.rp:hover::after{opacity:.08}}
+.rp:active::after{opacity:.1}
+.ripple{position:absolute;border-radius:50%;background:currentColor;opacity:.16;transform:scale(0);pointer-events:none;animation:ripple .5s var(--emph-dec) forwards;z-index:-1}
+@keyframes ripple{to{transform:scale(1);opacity:0}}
+
+/* Top App Bar */
+.appbar{position:sticky;top:0;z-index:5;background:var(--surface);padding:calc(env(safe-area-inset-top,0px) + 14px) 16px 10px;transition:background-color .25s var(--emph)}
+.appbar.scrolled{background:var(--surface-c)}
+.appbar-in{max-width:600px;margin:0 auto;display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.appbar h1{margin:0;font-size:1.75rem;line-height:2.25rem;font-weight:400;letter-spacing:0}
+.appbar p{margin:0;color:var(--on-surface-variant);font-size:.875rem;letter-spacing:.015em}
+.badge-jp{font-family:var(--f-jp);font-size:1.6rem;line-height:1;color:var(--primary);opacity:.9}
+
+.wrap{max-width:600px;margin:0 auto;padding-inline:16px;display:flex;flex-direction:column;gap:14px}
+
+/* Banner */
+.banner{display:flex;gap:12px;align-items:flex-start;background:var(--tertiary-container);color:var(--on-tertiary-container);border-radius:16px;padding:14px 12px 10px 16px;font-size:.9rem}
+.banner p{margin:0;flex:1}
+.txtbtn{border:0;background:none;color:var(--primary);font-weight:500;letter-spacing:.01em;padding:8px 12px;border-radius:20px;cursor:pointer;font-size:.875rem}
+.banner .txtbtn{color:inherit}
+
+/* Filter Chips */
+.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin-inline:-16px;padding:2px 16px;scroll-padding-inline:16px}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;display:inline-flex;align-items:center;gap:0;height:32px;padding:0 16px;border-radius:8px;border:1px solid var(--outline-variant);background:transparent;color:var(--on-surface-variant);font-size:.875rem;font-weight:500;letter-spacing:.01em;cursor:pointer;transition:background-color .25s var(--emph),border-color .25s var(--emph),padding .3s var(--emph),gap .3s var(--emph)}
+.chip svg{width:0;height:18px;transition:width .3s var(--emph)}
+.chip[aria-selected="true"]{background:var(--secondary-container);color:var(--on-secondary-container);border-color:transparent;padding-left:8px;gap:8px}
+.chip[aria-selected="true"] svg{width:18px}
+
+/* Linear progress (M3 expressive: Spalt + Stopp-Punkt) */
+.progress{display:flex;align-items:center;gap:4px;height:4px}
+.progress .ind{height:4px;border-radius:2px;background:var(--primary);transition:flex-basis .6s var(--emph);flex:0 0 0%}
+.progress .trk{height:4px;border-radius:2px;background:var(--secondary-container);flex:1;position:relative}
+.progress .trk::after{content:"";position:absolute;right:0;top:0;width:4px;height:4px;border-radius:50%;background:var(--primary)}
+.meta{display:flex;justify-content:space-between;color:var(--on-surface-variant);font-size:.8rem;letter-spacing:.03em;font-variant-numeric:tabular-nums}
+
+/* Views */
+.view{display:flex;flex-direction:column;gap:14px}
+
+/* Karte mit 3D-Umdrehen */
+.stage{perspective:1400px;touch-action:pan-y}
+.flip{display:grid;transform-style:preserve-3d;transition:transform .6s var(--emph)}
+.flip.open{transform:rotateY(180deg)}
+.face{grid-area:1/1;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:28px;padding:24px 22px;min-height:300px;display:flex;flex-direction:column;gap:12px}
+.front{background:var(--primary-container);color:var(--on-primary-container);justify-content:center;cursor:pointer}
+.back{background:var(--surface-low);border:1px solid var(--outline-variant);transform:rotateY(180deg)}
+.flip.open .front{pointer-events:none}
+.flip:not(.open) .back{pointer-events:none}
+.eyebrow{font-size:.75rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;opacity:.75}
+.de{font-size:1.75rem;line-height:2.25rem;margin:0;font-weight:400;text-wrap:balance}
+.hint{display:flex;align-items:center;gap:8px;margin:8px 0 0;font-size:.875rem;opacity:.8}
+.hint svg{width:20px;height:20px}
+.de-sm{margin:0;color:var(--on-surface-variant);font-size:.95rem}
+.romaji{font-size:1.75rem;line-height:2.4rem;font-weight:500;color:var(--primary);margin:0;overflow-wrap:anywhere}
+.kana{font-family:var(--f-jp);font-size:1.4rem;margin:0}
+.note{color:var(--on-surface-variant);font-size:.9rem;margin:0;padding:10px 12px;background:var(--surface-high);border-radius:12px}
+.w{font:inherit;color:inherit;background:none;border:0;padding:0 2px;margin:0 -2px;border-radius:6px;cursor:pointer;text-decoration:underline dotted;text-decoration-color:var(--outline);text-underline-offset:6px;text-decoration-thickness:2px;transition:background-color .2s var(--emph)}
+.w:active,.w.on{background:var(--primary-container)}
+
+/* Icon-Buttons (tonal) */
+.tools{display:flex;gap:10px;margin-top:auto;padding-top:6px}
+.ibtn{width:56px;height:56px;border-radius:16px;border:0;background:var(--secondary-container);color:var(--on-secondary-container);display:grid;place-items:center;cursor:pointer;transition:border-radius .35s var(--spring),transform .2s var(--emph)}
+.ibtn:active{border-radius:28px;transform:scale(.94)}
+.ibtn.listening{background:var(--error-container);color:var(--on-error-container);border-radius:28px;animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--error) 45%,transparent)}50%{box-shadow:0 0 0 12px transparent}}
+.micres{margin:0;font-size:.9rem;border-radius:12px;padding:10px 12px;background:var(--surface-high)}
+.micres.ok{background:var(--success-container);color:var(--on-success-container)}
+.micres.bad{background:var(--error-container);color:var(--on-error-container)}
+
+/* Buttons (M3 expressive: Form-Morph beim Drücken) */
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;transition:opacity .3s var(--emph),transform .4s var(--emph-dec)}
+.actions.off{opacity:0;transform:translateY(16px);pointer-events:none}
+.btn{height:56px;border:0;border-radius:28px;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:500;font-size:1rem;letter-spacing:.01em;cursor:pointer;transition:border-radius .35s var(--spring),transform .2s var(--emph)}
+.btn:active{border-radius:14px;transform:scale(.97)}
+.btn svg{width:20px;height:20px}
+.filled{background:var(--primary);color:var(--on-primary)}
+.tonal{background:var(--secondary-container);color:var(--on-secondary-container)}
+.outlined{background:transparent;border:1px solid var(--outline);color:var(--on-surface-variant)}
+.tip{margin:0;text-align:center;font-size:.8rem;color:var(--on-surface-variant)}
+
+/* Leere/fertige Zustände */
+.empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;padding:36px 20px;background:var(--surface-low);border-radius:28px}
+.empty .big{width:72px;height:72px;border-radius:24px;display:grid;place-items:center;background:var(--success-container);color:var(--on-success-container)}
+.empty .big svg{width:40px;height:40px}
+.empty h2{margin:0;font-size:1.375rem;font-weight:400}
+.empty p{margin:0;color:var(--on-surface-variant);font-size:.9rem;max-width:34ch}
+.pop{animation:pop .6s var(--spring)}
+@keyframes pop{from{transform:scale(.3);opacity:0}}
+
+/* Quiz */
+.qcard{background:var(--surface-low);border-radius:28px;padding:24px 18px;display:flex;flex-direction:column;align-items:center;gap:16px}
+.qcard .lbl{margin:0;color:var(--on-surface-variant);font-size:.9rem}
+.playbig{width:96px;height:96px;border-radius:32px;border:0;background:var(--primary);color:var(--on-primary);display:grid;place-items:center;cursor:pointer;transition:border-radius .4s var(--spring),transform .2s var(--emph)}
+.playbig svg{width:44px;height:44px}
+.playbig:active{border-radius:48px;transform:scale(.95)}
+.playbig.playing{border-radius:48px}
+.opts{display:flex;flex-direction:column;gap:8px;width:100%}
+.opt{display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left;min-height:56px;border:1px solid var(--outline-variant);background:var(--surface);border-radius:16px;padding:12px 16px;cursor:pointer;transition:background-color .3s var(--emph),border-color .3s var(--emph),border-radius .35s var(--spring)}
+.opt svg{width:0;transition:width .3s var(--spring)}
+.opt.right{background:var(--success-container);color:var(--on-success-container);border-color:transparent;border-radius:28px}
+.opt.right svg,.opt.wrong svg{width:24px}
+.opt.wrong{background:var(--error-container);color:var(--on-error-container);border-color:transparent;animation:shake .4s var(--emph)}
+.opt.dim{opacity:.5}
+@keyframes shake{20%{transform:translateX(-8px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(3px)}}
+.qans{width:100%;display:flex;flex-direction:column;gap:6px;padding-top:12px;border-top:1px solid var(--outline-variant)}
+
+/* Liste */
+.sect{margin:6px 0 0;font-size:.875rem;font-weight:500;color:var(--primary);letter-spacing:.01em}
+.list{list-style:none;margin:0;padding:0;background:var(--surface-low);border-radius:24px;overflow:hidden}
+.li{display:flex;align-items:center;gap:8px;padding:12px 8px 12px 16px;border-bottom:1px solid var(--outline-variant)}
+.li:last-child{border-bottom:0}
+.li .txt{flex:1;min-width:0}
+.li .h{margin:0;font-size:1rem}
+.li .s{margin:0;font-size:.875rem;color:var(--on-surface-variant);overflow-wrap:anywhere}
+.li .s b{color:var(--primary);font-weight:500}
+.li .done{width:20px;height:20px;color:var(--success)}
+.sbtn{width:40px;height:40px;border-radius:20px;border:0;background:none;color:var(--on-surface-variant);display:grid;place-items:center;cursor:pointer}
+.sbtn svg{width:22px;height:22px}
+.setrow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-bottom:1px solid var(--outline-variant)}
+.setrow:last-child{border-bottom:0}
+.setrow p{margin:0}
+.setrow small{display:block;color:var(--on-surface-variant);font-size:.8rem}
+
+/* M3 Switch */
+.switch{position:relative;width:52px;height:32px;flex:none}
+.switch input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer;z-index:1}
+.switch .tr{position:absolute;inset:0;border-radius:16px;background:var(--surface-highest);border:2px solid var(--outline);transition:background-color .25s var(--emph),border-color .25s var(--emph)}
+.switch .th{position:absolute;top:8px;left:8px;width:16px;height:16px;border-radius:50%;background:var(--outline);display:grid;place-items:center;transition:all .3s var(--spring)}
+.switch .th svg{width:16px;height:16px;opacity:0;color:var(--on-primary-container);transition:opacity .2s}
+.switch input:checked + .tr{background:var(--primary);border-color:var(--primary)}
+.switch input:checked ~ .th{left:24px;top:4px;width:24px;height:24px;background:var(--on-primary)}
+.switch input:checked ~ .th svg{opacity:1}
+.switch input:active ~ .th{width:28px;height:28px;top:2px}
+
+/* Navigation Bar */
+.navbar{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface-c);padding-bottom:env(safe-area-inset-bottom,0px)}
+.navbar-in{max-width:600px;margin:0 auto;height:var(--nav-h);display:grid;grid-template-columns:repeat(3,1fr)}
+.nav-item{border:0;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;color:var(--on-surface-variant);font-size:.75rem;font-weight:500;letter-spacing:.04em}
+.nav-item .ind{width:64px;height:32px;border-radius:16px;display:grid;place-items:center;position:relative;overflow:hidden;isolation:isolate}
+.nav-item .ind::before{content:"";position:absolute;inset:0;border-radius:16px;background:var(--secondary-container);transform:scaleX(0);opacity:0;transition:transform .4s var(--emph),opacity .2s;z-index:-1}
+.nav-item[aria-current="page"]{color:var(--on-surface)}
+.nav-item[aria-current="page"] .ind{color:var(--on-secondary-container)}
+.nav-item[aria-current="page"] .ind::before{transform:scaleX(1);opacity:1}
+.nav-item[aria-current="page"] .lbl{font-weight:700}
+
+/* FAB */
+.fab{position:fixed;right:16px;bottom:calc(var(--nav-h) + env(safe-area-inset-bottom,0px) + 16px);z-index:6;height:56px;padding:0 20px 0 16px;border:0;border-radius:16px;background:var(--primary-container);color:var(--on-primary-container);display:flex;align-items:center;gap:12px;font-weight:500;cursor:pointer;box-shadow:0 3px 6px rgba(0,0,0,.15),0 1px 3px rgba(0,0,0,.2);transition:transform .35s var(--spring),opacity .2s,border-radius .3s var(--spring)}
+.fab:active{border-radius:28px}
+.fab.hide{transform:scale(.5) translateY(40px);opacity:0;pointer-events:none}
+
+/* Scrim, Bottom Sheet, Snackbar, Zeige-Modus */
+.scrim{position:fixed;inset:0;z-index:20;background:var(--scrim);opacity:0;transition:opacity .3s var(--emph)}
+.scrim.on{opacity:1}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:21;max-width:640px;margin:0 auto;background:var(--surface-low);border-radius:28px 28px 0 0;padding:0 20px calc(24px + env(safe-area-inset-bottom,0px));transform:translateY(100%);transition:transform .45s var(--emph-dec);max-height:88vh;overflow-y:auto;touch-action:pan-y}
+.sheet.on{transform:none}
+.sheet.closing{transition:transform .25s var(--emph-acc)}
+.handle{width:32px;height:4px;border-radius:2px;background:var(--on-surface-variant);opacity:.4;margin:16px auto 18px}
+.sheet h2{margin:0 0 4px;font-size:1.5rem;font-weight:400}
+.wbig{font-size:2rem;font-weight:500;color:var(--primary);margin:0}
+.wjp{font-family:var(--f-jp);font-size:2.4rem;margin:0}
+.wde{font-size:1.15rem;margin:0}
+.sheet-body{display:flex;flex-direction:column;gap:10px}
+.sheet .row2{display:flex;gap:10px;margin-top:8px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:.8rem;color:var(--on-surface-variant);letter-spacing:.02em}
+.field input{font:inherit;font-size:1rem;height:56px;padding:0 16px;border-radius:4px;border:1px solid var(--outline);background:transparent;color:var(--on-surface);transition:border-color .2s}
+.field input:focus{outline:0;border:2px solid var(--primary);padding:0 15px}
+.field small{font-size:.75rem;color:var(--on-surface-variant)}
+.snack{position:fixed;left:16px;right:16px;bottom:calc(var(--nav-h) + env(safe-area-inset-bottom,0px) + 12px);z-index:30;max-width:568px;margin:0 auto;background:var(--inverse-surface);color:var(--inverse-on-surface);border-radius:8px;padding:6px 8px 6px 16px;min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:.875rem;box-shadow:0 4px 8px rgba(0,0,0,.2);transform:translateY(20px);opacity:0;transition:transform .35s var(--emph-dec),opacity .2s}
+.snack.on{transform:none;opacity:1}
+.snack .txtbtn{color:var(--inverse-primary)}
+.show{position:fixed;inset:0;z-index:40;background:var(--surface);display:flex;flex-direction:column;justify-content:center;align-items:center;gap:20px;text-align:center;padding:calc(24px + env(safe-area-inset-top,0px)) 20px calc(24px + env(safe-area-inset-bottom,0px));cursor:pointer;opacity:0;transform:scale(.9);transition:opacity .25s var(--emph),transform .45s var(--emph-dec);border-radius:28px}
+.show.on{opacity:1;transform:none;border-radius:0}
+.show-ja{font-family:var(--f-jp);font-size:clamp(2.6rem,12vw,5.5rem);line-height:1.25;margin:0;font-weight:700;overflow-wrap:anywhere}
+.show-ro{font-size:1.5rem;color:var(--primary);margin:0;font-weight:500}
+.show-de{font-size:1.1rem;color:var(--on-surface-variant);margin:0}
+.show-x{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));right:12px}
+
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:1ms!important;transition-duration:1ms!important}}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <h1>Japan Reisesätze</h1>
-    <p>Karte antippen → Japanisch erscheint. Einzelnes Wort antippen → Bedeutung. 🎤 prüft deine Aussprache, 📱 zeigt den Satz gross zum Vorzeigen.</p>
-  </header>
-  <p class="warn" id="voiceWarn" hidden>Keine japanische Stimme gefunden. Android: Einstellungen → «Text-in-Sprache» → Google-Sprachausgabe → Sprachdaten installieren → Japanisch.</p>
-  <div class="modes" id="modes">
-    <button data-m="learn" aria-pressed="true">📇 Lernen</button>
-    <button data-m="quiz" aria-pressed="false">🎧 Hör-Quiz</button>
+<header class="appbar" id="appbar">
+  <div class="appbar-in">
+    <div><h1>Japan Reisesätze</h1><p id="sub"></p></div>
+    <span class="badge-jp" lang="ja" aria-hidden="true">話</span>
   </div>
-  <div class="chips" id="chips"></div>
-  <div class="meta">
-    <span id="count"></span>
-    <label><input type="checkbox" id="slow" checked> langsam sprechen</label>
+</header>
+
+<main class="wrap">
+  <div class="banner" id="voiceWarn" hidden>
+    <p>Keine japanische Stimme gefunden. Android: Einstellungen → «Text-in-Sprache» → Google-Sprachausgabe → Sprachdaten installieren → Japanisch.</p>
+    <button class="txtbtn rp" id="vwOk">OK</button>
   </div>
-  <div class="bar"><i id="bar"></i></div>
-  <div id="stage"></div>
-  <form class="own" id="ownForm" hidden>
-    <h2>Eigenen Satz hinzufügen</h2>
-    <label for="oDe">Deutsch<input id="oDe" required placeholder="z. B. Wo ist mein Hotel?"></label>
-    <label for="oRo">Lautschrift<input id="oRo" required placeholder="z. B. Hoteru wa doko desu ka?"></label>
-    <label for="oKa">Japanisch (optional, für die richtige Aussprache)<input id="oKa" lang="ja" placeholder="z. B. ホテルはどこですか？"></label>
-    <p class="tip">Tipp: Satz im Google Übersetzer eingeben, das Japanische kopieren und hier einfügen. Die Lautschrift steht dort unter der Übersetzung.</p>
-    <button class="btn good" type="submit">Hinzufügen</button>
-  </form>
-  <details class="list">
-    <summary>Alle Sätze dieser Kategorie anzeigen</summary>
-    <ul id="list"></ul>
-  </details>
-  <button class="reset" id="reset">Fortschritt zurücksetzen</button>
-  <p class="offline" id="offline"></p>
-</div>
+  <div class="chips" id="chips" role="tablist" aria-label="Kategorien"></div>
+  <div>
+    <div class="progress" aria-hidden="true"><span class="ind" id="bar"></span><span class="trk"></span></div>
+  </div>
+  <section class="view" id="view" aria-live="polite"></section>
+</main>
+
+<button class="fab rp hide" id="fab"><svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>Satz hinzufügen</button>
+
+<nav class="navbar" aria-label="Hauptnavigation">
+  <div class="navbar-in" id="nav">
+    <button class="nav-item" data-v="learn"><span class="ind rp"><svg viewBox="0 0 24 24"><path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/></svg></span><span class="lbl">Lernen</span></button>
+    <button class="nav-item" data-v="quiz"><span class="ind rp"><svg viewBox="0 0 24 24"><path d="M12 1c-4.97 0-9 4.03-9 9v7c0 1.66 1.34 3 3 3h3v-8H5v-2c0-3.87 3.13-7 7-7s7 3.13 7 7v2h-4v8h3c1.66 0 3-1.34 3-3v-7c0-4.97-4.03-9-9-9z"/></svg></span><span class="lbl">Hör-Quiz</span></button>
+    <button class="nav-item" data-v="list"><span class="ind rp"><svg viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg></span><span class="lbl">Sätze</span></button>
+  </div>
+</nav>
+
+<div class="scrim" id="scrim" hidden></div>
+<div class="sheet" id="sheet" hidden role="dialog" aria-modal="true"><div class="handle" id="handle"></div><div class="sheet-body" id="sheetBody"></div></div>
+<div class="snack" id="snack" hidden role="status"><span id="snackTxt"></span><button class="txtbtn" id="snackAct">Rückgängig</button></div>
 <div class="show" id="show" hidden role="dialog" aria-label="Zeige-Modus">
+  <button class="sbtn show-x" aria-label="Schliessen"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
   <p class="show-ja" id="showJa" lang="ja"></p>
   <p class="show-ro" id="showRo"></p>
   <p class="show-de" id="showDe"></p>
-  <p class="show-hint">Antippen zum Schliessen</p>
 </div>
 
 <script>
@@ -248,7 +391,6 @@ const GLOSS = {
   "ja":["じゃ","also / dann"],
   "mata":["また","wieder / bis dann"]
 };
-
 // [Deutsch, Lautschrift, Japanisch, Hinweis, (optional) Aussprache in Hiragana]
 const DATA = {
   "Grundlagen":[
@@ -335,242 +477,373 @@ const DATA = {
     ["Ich habe eine Allergie","Arerugī ga arimasu","アレルギーがあります",""]
   ]
 };
-const cats = Object.keys(DATA);
-const store = {
-  get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},
-  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
-};
-let own = store.get("jp-own",[]);
-DATA["Eigene"] = own; cats.push("Eigene");
-let mode = store.get("jp-mode","learn"); if(mode!=="quiz") mode="learn";
-let known = store.get("jp-known",{});
-let cat = store.get("jp-cat",cats[0]); if(!DATA[cat]) cat=cats[0];
-let queue=[], cur=null, open=false;
 
+
+// ---------- Icons ----------
+const I={
+  vol:'<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>',
+  mic:'<svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg>',
+  full:'<svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>',
+  check:'<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>',
+  close:'<svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>',
+  replay:'<svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>',
+  del:'<svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>',
+  next:'<svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>',
+  touch:'<svg viewBox="0 0 24 24"><path d="M9 11.24V7.5a2.5 2.5 0 015 0v3.74c1.21-.81 2-2.18 2-3.74C16 5.01 13.99 3 11.5 3S7 5.01 7 7.5c0 1.56.79 2.93 2 3.74zm9.84 4.63l-4.54-2.26c-.17-.07-.35-.11-.54-.11H13v-6c0-.83-.67-1.5-1.5-1.5S10 6.67 10 7.5v10.74l-3.43-.72c-.08-.01-.15-.03-.24-.03-.31 0-.59.13-.79.33l-.79.8 4.94 4.94c.27.27.65.44 1.06.44h6.79c.75 0 1.33-.55 1.44-1.28l.75-5.27c.01-.07.02-.14.02-.2 0-.62-.38-1.16-.91-1.38z"/></svg>',
+  add:'<svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>',
+  done:'<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>'
+};
+
+// ---------- Grundlagen ----------
 const $=id=>document.getElementById(id);
-const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const RM=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const EMPH="cubic-bezier(.2,0,0,1)",DEC="cubic-bezier(.05,.7,.1,1)",ACC="cubic-bezier(.3,0,.8,.15)";
+function anim(el,kf,opt,done){ if(RM||!el||!el.animate){done&&done();return} const a=el.animate(kf,opt); if(done)a.onfinish=done; }
+function haptic(p){try{navigator.vibrate&&navigator.vibrate(p)}catch(e){}}
 const key=(c,i)=>c+"#"+i;
 const sayText=r=>r[4]||r[2]||r[1];
-const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 const wkey=t=>t.toLowerCase().replace(/[?!.,…«»]/g,"");
-function romajiHTML(ro){
-  return ro.split(/(\s+|\/)/).map(t=>{const k=wkey(t);return GLOSS[k]?`<button class="w" data-w="${esc(k)}">${esc(t)}</button>`:esc(t)}).join("");
-}
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 
+let own=store.get("jp-own",[]);
+DATA["Eigene"]=own;
+const cats=Object.keys(DATA);
+let known=store.get("jp-known",{});
+let cat=store.get("jp-cat",cats[0]); if(!DATA[cat]) cat=cats[0];
+let view=store.get("jp-view",store.get("jp-mode","learn")); if(!["learn","quiz","list"].includes(view)) view="learn";
+let slow=store.get("jp-slow",true);
+let queue=[],cur=null,open=false,qScore=0,qTotal=0;
+
+// ---------- Ripple ----------
+document.addEventListener("pointerdown",e=>{
+  const el=e.target.closest(".rp,.btn,.chip,.opt,.ibtn,.sbtn,.txtbtn,.playbig"); if(!el||RM) return;
+  if(getComputedStyle(el).position==="static") el.style.position="relative";
+  el.style.overflow="hidden";
+  const r=el.getBoundingClientRect(),s=Math.max(r.width,r.height)*2.2,d=document.createElement("span");
+  d.className="ripple"; d.style.cssText=`width:${s}px;height:${s}px;left:${e.clientX-r.left-s/2}px;top:${e.clientY-r.top-s/2}px`;
+  el.appendChild(d); setTimeout(()=>d.remove(),600);
+},{passive:true});
+
+// ---------- Sprachausgabe ----------
 let jaVoice=null;
 function loadVoices(){
-  if(!("speechSynthesis" in window)){$("voiceWarn").hidden=false;return}
-  const vs=speechSynthesis.getVoices();
-  jaVoice=vs.find(v=>/^ja/i.test(v.lang))||null;
-  if(vs.length) $("voiceWarn").hidden=!!jaVoice;
+  if(!("speechSynthesis" in window)){$("voiceWarn").hidden=store.get("jp-vw",false);return}
+  const vs=speechSynthesis.getVoices(); jaVoice=vs.find(v=>/^ja/i.test(v.lang))||null;
+  if(vs.length) $("voiceWarn").hidden=!!jaVoice||store.get("jp-vw",false);
 }
-if("speechSynthesis" in window){loadVoices();speechSynthesis.onvoiceschanged=loadVoices;setTimeout(loadVoices,1500)}else{$("voiceWarn").hidden=false}
-
-function speak(text){
+if("speechSynthesis" in window){loadVoices();speechSynthesis.onvoiceschanged=loadVoices;setTimeout(loadVoices,1500)}
+$("vwOk").onclick=()=>{store.set("jp-vw",true);anim($("voiceWarn"),[{opacity:1},{opacity:0,transform:"translateY(-8px)"}],{duration:200,easing:ACC},()=>$("voiceWarn").hidden=true)};
+function speak(text,btn){
   if(!("speechSynthesis" in window)) return;
   speechSynthesis.cancel();
-  const t=text.replace(/…/g,"、").split(" / ").join("。");
-  const u=new SpeechSynthesisUtterance(t);
-  u.lang="ja-JP"; if(jaVoice) u.voice=jaVoice;
-  u.rate=$("slow").checked?0.7:1;
+  const u=new SpeechSynthesisUtterance(String(text).replace(/…/g,"、").split(" / ").join("。"));
+  u.lang="ja-JP"; if(jaVoice) u.voice=jaVoice; u.rate=slow?0.7:1;
+  if(btn){btn.classList.add("playing");u.onend=u.onerror=()=>btn.classList.remove("playing")}
   speechSynthesis.speak(u);
 }
 
+// ---------- App-Bar, Chips, Fortschritt ----------
+addEventListener("scroll",()=>$("appbar").classList.toggle("scrolled",scrollY>4),{passive:true});
 function renderChips(){
-  $("chips").innerHTML=cats.map(c=>`<button class="chip" aria-pressed="${c===cat}" data-c="${esc(c)}">${esc(c)}</button>`).join("");
+  $("chips").innerHTML=cats.map(c=>`<button class="chip" role="tab" aria-selected="${c===cat}" data-c="${esc(c)}">${I.check}${esc(c)}</button>`).join("");
+  const sel=$("chips").querySelector('[aria-selected="true"]');
+  sel&&sel.scrollIntoView({inline:"center",block:"nearest",behavior:RM?"auto":"smooth"});
 }
-$("chips").onclick=e=>{const b=e.target.closest(".chip");if(!b)return;cat=b.dataset.c;store.set("jp-cat",cat);start()};
+$("chips").onclick=e=>{const b=e.target.closest(".chip");if(!b||b.dataset.c===cat)return;haptic(6);cat=b.dataset.c;store.set("jp-cat",cat);renderChips();renderView(true)};
+function catStats(c){const n=DATA[c].length;return [DATA[c].filter((_,i)=>known[key(c,i)]).length,n]}
+function updateBar(){
+  let p=0,t="";
+  if(view==="quiz"){p=qTotal?qScore/qTotal:0;t=`Hör-Quiz · ${cat} · ${qScore} von ${qTotal} richtig`}
+  else{const [k,n]=catStats(cat);p=n?k/n:0;t=n?`${cat} · ${k} von ${n} gelernt`:`${cat} · noch leer`}
+  $("bar").style.flexBasis=(p*100)+"%"; $("sub").textContent=t;
+}
 
-function start(){
-  renderChips();
-  document.querySelectorAll("#modes button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.m===mode));
-  $("ownForm").hidden = !(cat==="Eigene" && mode==="learn");
-  document.querySelector(".list").hidden = mode==="quiz";
-  if(mode==="quiz"){ startQuiz(); return; }
+// ---------- Navigation (Fade-Through) ----------
+function renderNav(){
+  document.querySelectorAll(".nav-item").forEach(b=>{b.toggleAttribute("aria-current",b.dataset.v===view);if(b.dataset.v===view)b.setAttribute("aria-current","page")});
+  $("fab").classList.toggle("hide",view!=="list");
+}
+$("nav").onclick=e=>{
+  const b=e.target.closest(".nav-item"); if(!b||b.dataset.v===view) return;
+  haptic(8); view=b.dataset.v; store.set("jp-view",view); renderNav(); renderView(true);
+};
+function renderView(animate){
+  const v=$("view");
+  const build=()=>{
+    if(view==="learn") startLearn(); else if(view==="quiz") startQuiz(); else renderList();
+    updateBar();
+    if(animate) anim(v,[{opacity:0,transform:"scale(.96)"},{opacity:1,transform:"none"}],{duration:300,easing:DEC});
+  };
+  if(animate) anim(v,[{opacity:1},{opacity:0}],{duration:90,easing:ACC},build); else build();
+}
+
+// ---------- Lernen ----------
+function startLearn(){
   queue=DATA[cat].map((_,i)=>i).filter(i=>!known[key(cat,i)]);
   for(let i=queue.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[queue[i],queue[j]]=[queue[j],queue[i]]}
-  renderList(); next();
+  drawCard();
 }
-function progress(){
-  if(!DATA[cat].length){ $("count").textContent=`${cat}: noch leer`; $("bar").style.width="0"; return; }
-  const n=DATA[cat].length, k=DATA[cat].filter((_,i)=>known[key(cat,i)]).length;
-  $("count").textContent=`${cat}: ${k} von ${n} gelernt`;
-  $("bar").style.width=(k/n*100)+"%";
-}
-function next(){open=false; cur=queue.length?queue[0]:null; progress(); draw();}
-function draw(){
-  if(cur===null && !DATA[cat].length){
-    $("stage").innerHTML=`<div class="card" style="cursor:default"><p class="de">Noch keine eigenen Sätze</p><p class="hint">Füge unten deinen ersten Satz hinzu, z. B. den Namen deines Hotels oder ein Gericht, das du bestellen willst.</p></div>`;
-    return;
+function romajiHTML(ro){return ro.split(/(\s+|\/)/).map(t=>{const k=wkey(t);return GLOSS[k]?`<button class="w" data-w="${esc(k)}">${esc(t)}</button>`:esc(t)}).join("")}
+function drawCard(){
+  open=false; cur=queue.length?queue[0]:null; const v=$("view");
+  if(!DATA[cat].length){
+    v.innerHTML=`<div class="empty"><div class="big" style="background:var(--primary-container);color:var(--on-primary-container)">${I.add}</div><h2>Noch keine eigenen Sätze</h2><p>Füge deinen ersten Satz hinzu, z. B. den Namen deines Hotels oder ein Gericht.</p><button class="btn filled" id="goAdd" style="padding:0 24px">${I.add} Satz hinzufügen</button></div>`;
+    $("goAdd").onclick=openAdd; return;
   }
   if(cur===null){
-    $("stage").innerHTML=`<div class="card" style="cursor:default;text-align:center"><p class="de">Alles gelernt in «${esc(cat)}» 🎉</p><p class="hint">Wähle eine andere Kategorie oder setze den Fortschritt zurück.</p></div>`;
+    v.innerHTML=`<div class="empty"><div class="big pop">${I.check}</div><h2>Alles gelernt!</h2><p>Du kannst alle Sätze in «${esc(cat)}». Wähle eine andere Kategorie oder übe nochmal.</p><button class="btn tonal" id="again0" style="padding:0 24px">${I.replay} Nochmal üben</button></div>`;
+    haptic([20,60,20]);
+    $("again0").onclick=()=>{DATA[cat].forEach((_,i)=>delete known[key(cat,i)]);store.set("jp-known",known);updateBar();renderView(true)};
     return;
   }
-  const r=DATA[cat][cur], [de,ro,ka,no]=r;
-  $("stage").innerHTML=`
-    <div class="card" id="card" tabindex="0" role="button" aria-label="Karte aufdecken">
-      <p class="de">${esc(de)}</p>
-      ${open?`<div class="ans">
-        <p class="romaji">${romajiHTML(ro)}</p>
-        <div class="wordbox" id="wordbox" hidden></div>
-        <p class="kana" lang="ja">${esc(ka)}</p>
-        ${no?`<p class="note">${esc(no)}</p>`:""}
-        <div class="tools">
-          <button class="speak" id="say">🔊 Anhören</button>
-          ${SR?`<button class="speak" id="mic">🎤 Nachsprechen</button>`:""}
-          <button class="speak" id="showBtn">📱 Zeigen</button>
+  const r=DATA[cat][cur],[de,ro,ka,no]=r;
+  v.innerHTML=`
+    <div class="stage" id="stage">
+      <div class="flip" id="flip">
+        <div class="face front rp" id="front" role="button" tabindex="0" aria-label="Karte umdrehen">
+          <span class="eyebrow">Wie sagt man …</span>
+          <p class="de">${esc(de)}</p>
+          <p class="hint">${I.touch} Erst selbst laut versuchen, dann antippen</p>
         </div>
-        <p class="micres" id="micres" hidden></p>
-      </div>`:`<p class="hint">Antippen zum Aufdecken – erst selber laut versuchen!</p>`}
+        <div class="face back" id="back">
+          <p class="de-sm">${esc(de)}</p>
+          <p class="romaji">${romajiHTML(ro)}</p>
+          ${ka?`<p class="kana" lang="ja">${esc(ka)}</p>`:""}
+          ${no?`<p class="note">${esc(no)}</p>`:""}
+          <div class="tools">
+            <button class="ibtn" id="say" aria-label="Anhören">${I.vol}</button>
+            ${SR?`<button class="ibtn" id="mic" aria-label="Nachsprechen">${I.mic}</button>`:""}
+            <button class="ibtn" id="showBtn" aria-label="Gross zeigen">${I.full}</button>
+          </div>
+          <p class="micres" id="micres" hidden></p>
+        </div>
+      </div>
     </div>
-    ${open?`<div class="row">
-      <button class="btn again" id="again">Nochmal üben</button>
-      <button class="btn good" id="good">Kann ich ✓</button>
-    </div>`:""}`;
-  const card=$("card");
-  const reveal=()=>{if(!open){open=true;draw();speak(sayText(r))}};
-  card.onclick=e=>{
-    if(e.target.closest(".tools"))return;
-    const w=e.target.closest(".w");
-    if(w){
-      const [kana,de]=GLOSS[w.dataset.w], box=$("wordbox");
-      card.querySelectorAll(".w").forEach(b=>b.setAttribute("aria-pressed",b===w));
-      box.innerHTML=`<b>${esc(w.textContent.replace(/[?!.,…«»]/g,""))}</b><span>${esc(de)}</span><span class="wk" lang="ja">${esc(kana)}</span>`;
-      box.hidden=false; speak(kana); return;
-    }
-    reveal()};
-  card.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();reveal()}};
-  if(open){
-    $("say").onclick=e=>{e.stopPropagation();speak(sayText(r))};
-    $("showBtn").onclick=e=>{e.stopPropagation();showBig(r)};
-    if(SR) $("mic").onclick=e=>{e.stopPropagation();listen(r)};
-    $("again").onclick=()=>{queue.push(queue.shift());next()};
-    $("good").onclick=()=>{known[key(cat,cur)]=1;store.set("jp-known",known);queue.shift();renderList();next()};
-  }
+    <div class="actions off" id="actions">
+      <button class="btn tonal" id="again">${I.replay} Nochmal</button>
+      <button class="btn filled" id="good">${I.check} Kann ich</button>
+    </div>
+    <p class="tip" id="swipetip">Tipp: Karte nach rechts wischen = kann ich · nach links = nochmal</p>`;
+  const reveal=()=>{ if(open) return; open=true; haptic(8); $("flip").classList.add("open"); $("actions").classList.remove("off"); setTimeout(()=>speak(sayText(r)),RM?0:250); };
+  $("front").onclick=reveal;
+  $("front").onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();reveal()}};
+  $("say").onclick=e=>speak(sayText(r),e.currentTarget);
+  $("showBtn").onclick=()=>showBig(r);
+  if(SR) $("mic").onclick=e=>listen(r,e.currentTarget);
+  $("back").addEventListener("click",e=>{const w=e.target.closest(".w");if(w)openWord(w)});
+  $("again").onclick=()=>advance(-1);
+  $("good").onclick=()=>advance(1);
+  bindSwipe($("stage"));
 }
-function renderList(){
-  $("list").innerHTML=DATA[cat].map(([de,ro,ka],i)=>`<li><span>${esc(de)}<br><b>${esc(ro)}</b> <span lang="ja">${esc(ka||"")}</span></span><span class="acts"><button class="mini" data-i="${i}" aria-label="Anhören">🔊</button><button class="mini" data-s="${i}" aria-label="Zeigen">📱</button>${cat==="Eigene"?`<button class="mini" data-d="${i}" aria-label="Löschen">✕</button>`:""}</span></li>`).join("");
+function advance(dir){
+  if(cur===null) return;
+  const idx=cur;
+  if(dir>0){ known[key(cat,idx)]=1; store.set("jp-known",known); queue.shift(); haptic(12);
+    snack("Gelernt ✓",()=>{delete known[key(cat,idx)];store.set("jp-known",known);queue.unshift(idx);updateBar();drawCardIn()}); }
+  else { queue.push(queue.shift()); haptic(6); }
+  const st=$("stage"), cur3=st&&st.style.transform;
+  anim(st,[{transform:cur3||"none",opacity:1},{transform:`translateX(${dir*130}%) rotate(${dir*12}deg)`,opacity:0}],{duration:260,easing:ACC},()=>{updateBar();drawCardIn()});
 }
-$("list").onclick=e=>{
-  const b=e.target.closest(".mini"); if(!b) return;
-  if(b.dataset.i!==undefined) speak(sayText(DATA[cat][+b.dataset.i]));
-  else if(b.dataset.s!==undefined) showBig(DATA[cat][+b.dataset.s]);
-  else if(b.dataset.d!==undefined){
-    own.splice(+b.dataset.d,1); store.set("jp-own",own);
-    Object.keys(known).forEach(k=>{if(k.startsWith("Eigene#"))delete known[k]}); store.set("jp-known",known);
-    start();
-  }
-};
-$("ownForm").onsubmit=e=>{
-  e.preventDefault();
-  const de=$("oDe").value.trim(), ro=$("oRo").value.trim(), ka=$("oKa").value.trim();
-  if(!de||!ro) return;
-  own.push([de,ro,ka,""]); store.set("jp-own",own);
-  $("oDe").value=$("oRo").value=$("oKa").value="";
-  start();
-};
-$("modes").onclick=e=>{const b=e.target.closest("button");if(!b)return;mode=b.dataset.m;store.set("jp-mode",mode);start()};
+function drawCardIn(){
+  drawCard();
+  anim($("stage"),[{transform:"scale(.9) translateY(24px)",opacity:0},{transform:"none",opacity:1}],{duration:420,easing:DEC});
+}
+function bindSwipe(st){
+  let x0=null,dx=0,drag=false;
+  st.addEventListener("pointerdown",e=>{if(!open||e.target.closest("button"))return;x0=e.clientX;dx=0;drag=false});
+  st.addEventListener("pointermove",e=>{
+    if(x0===null) return; dx=e.clientX-x0;
+    if(!drag&&Math.abs(dx)>12){drag=true;st.setPointerCapture(e.pointerId)}
+    if(drag){st.style.transform=`translateX(${dx}px) rotate(${dx/22}deg)`;
+      const b=$(dx>0?"good":"again"),o=$(dx>0?"again":"good"); b.style.transform=`scale(${1+Math.min(Math.abs(dx),120)/1200})`; o.style.transform="";}
+  });
+  const end=()=>{
+    if(x0===null) return; x0=null;
+    if(drag&&Math.abs(dx)>90){advance(dx>0?1:-1);return}
+    if(drag){anim(st,[{transform:st.style.transform},{transform:"none"}],{duration:350,easing:"cubic-bezier(.34,1.45,.64,1)"});st.style.transform="";$("good").style.transform=$("again").style.transform=""}
+  };
+  st.addEventListener("pointerup",end); st.addEventListener("pointercancel",end);
+}
+
+// ---------- Wort-Bedeutung (Bottom Sheet) ----------
+function openWord(w){
+  document.querySelectorAll(".w.on").forEach(x=>x.classList.remove("on")); w.classList.add("on");
+  const [kana,de]=GLOSS[w.dataset.w];
+  openSheet(`<p class="wbig">${esc(w.textContent.replace(/[?!.,…«»]/g,""))}</p><p class="wjp" lang="ja">${esc(kana)}</p><p class="wde">${esc(de)}</p>
+    <div class="row2"><button class="btn tonal" id="wsay" style="flex:1">${I.vol} Anhören</button></div>`,()=>{$("wsay").onclick=e=>speak(kana,e.currentTarget)},()=>w.classList.remove("on"));
+  speak(kana); haptic(6);
+}
+
+// ---------- Bottom Sheet ----------
+let sheetClose=null;
+function openSheet(html,mount,onclose){
+  $("sheetBody").innerHTML=html; sheetClose=onclose||null;
+  $("scrim").hidden=false; $("sheet").hidden=false; $("sheet").classList.remove("closing");
+  void $("sheet").offsetWidth; $("scrim").classList.add("on"); $("sheet").classList.add("on");
+  mount&&mount();
+}
+function closeSheet(){
+  const s=$("sheet"); if(s.hidden) return;
+  s.classList.add("closing"); s.classList.remove("on"); s.style.transform=""; $("scrim").classList.remove("on");
+  setTimeout(()=>{s.hidden=true;$("scrim").hidden=true},RM?0:260);
+  sheetClose&&sheetClose(); sheetClose=null;
+}
+$("scrim").onclick=closeSheet;
+(()=>{ // Sheet nach unten wischen zum Schliessen
+  let y0=null,dy=0; const s=$("sheet");
+  s.addEventListener("pointerdown",e=>{if(e.target.closest("input,button")||s.scrollTop>0)return;y0=e.clientY;dy=0;s.style.transition="none"});
+  s.addEventListener("pointermove",e=>{if(y0===null)return;dy=Math.max(0,e.clientY-y0);s.style.transform=`translateY(${dy}px)`});
+  const end=()=>{if(y0===null)return;y0=null;s.style.transition="";if(dy>90)closeSheet();else s.style.transform=""};
+  s.addEventListener("pointerup",end);s.addEventListener("pointercancel",end);
+})();
+addEventListener("keydown",e=>{if(e.key==="Escape"){closeSheet();closeShow()}});
+
+// ---------- Snackbar ----------
+let snackT=null;
+function snack(txt,undo){
+  const s=$("snack"); $("snackTxt").textContent=txt; $("snackAct").hidden=!undo;
+  $("snackAct").onclick=()=>{undo&&undo();hideSnack()};
+  s.hidden=false; void s.offsetWidth; s.classList.add("on");
+  clearTimeout(snackT); snackT=setTimeout(hideSnack,4000);
+}
+function hideSnack(){const s=$("snack");s.classList.remove("on");setTimeout(()=>{if(!s.classList.contains("on"))s.hidden=true},300)}
 
 // ---------- Zeige-Modus ----------
+let wl=null;
 function showBig(r){
   $("showJa").textContent=r[2]||r[1]; $("showRo").textContent=r[1]; $("showDe").textContent=r[0];
-  $("show").hidden=false;
-  try{ navigator.wakeLock && navigator.wakeLock.request("screen").then(l=>{showBig.lock=l}).catch(()=>{}); }catch(e){}
+  const s=$("show"); s.hidden=false; void s.offsetWidth; s.classList.add("on"); haptic(10);
+  try{navigator.wakeLock&&navigator.wakeLock.request("screen").then(l=>wl=l).catch(()=>{})}catch(e){}
 }
-$("show").onclick=()=>{ $("show").hidden=true; try{showBig.lock&&showBig.lock.release()}catch(e){} };
+function closeShow(){const s=$("show");if(s.hidden)return;s.classList.remove("on");setTimeout(()=>s.hidden=true,RM?0:260);try{wl&&wl.release()}catch(e){};wl=null}
+$("show").onclick=closeShow;
 
 // ---------- Aussprache prüfen ----------
-function norm(t){
-  return (t||"").toLowerCase().replace(/[\u30a1-\u30f6]/g,c=>String.fromCharCode(c.charCodeAt(0)-0x60))
-    .replace(/[\s、。？！?!.,…\/・「」-]/g,"");
-}
-function sim(a,b){
-  if(!a||!b) return 0;
-  const m=a.length,n=b.length,d=Array(n+1).fill(0);
-  for(let i=1;i<=m;i++){let prev=0;for(let j=1;j<=n;j++){const t=d[j];d[j]=a[i-1]===b[j-1]?prev+1:Math.max(d[j],d[j-1]);prev=t}}
-  return 2*d[n]/(m+n);
-}
-function listen(r){
+function norm(t){return (t||"").toLowerCase().replace(/[ァ-ヶ]/g,c=>String.fromCharCode(c.charCodeAt(0)-0x60)).replace(/[\s、。？！?!.,…\/・「」-]/g,"")}
+function sim(a,b){if(!a||!b)return 0;const m=a.length,n=b.length,d=Array(n+1).fill(0);for(let i=1;i<=m;i++){let p=0;for(let j=1;j<=n;j++){const t=d[j];d[j]=a[i-1]===b[j-1]?p+1:Math.max(d[j],d[j-1]);p=t}}return 2*d[n]/(m+n)}
+function listen(r,btn){
   const res=$("micres"); if(!SR) return;
-  speechSynthesis && speechSynthesis.cancel();
+  try{speechSynthesis.cancel()}catch(e){}
   const rec=new SR(); rec.lang="ja-JP"; rec.interimResults=false; rec.maxAlternatives=5;
-  let got=false;
-  res.hidden=false; res.className="micres"; res.textContent="🎤 Sprich jetzt …";
+  let got=false; btn.classList.add("listening"); haptic(10);
+  res.hidden=false; res.className="micres"; res.textContent="Sprich jetzt …";
   rec.onresult=e=>{
-    got=true;
-    const alts=[...e.results[0]].map(a=>a.transcript);
-    const targets=[r[2],r[4]].filter(Boolean);
-    let best=0; for(const a of alts) for(const t of targets) best=Math.max(best,sim(norm(a),norm(t)));
-    const v = best>=0.8?["ok","✓ Sehr gut!"]:best>=0.5?["","Fast! Hör nochmal genau hin und versuch es wieder."]:["bad","Nicht ganz. Hör dir die Aussprache nochmal an."];
-    res.className="micres "+v[0];
-    res.innerHTML=`Erkannt: <span lang="ja">${esc(alts[0])}</span><br><b>${v[1]}</b>`;
+    got=true; const alts=[...e.results[0]].map(a=>a.transcript), tg=[r[2],r[4]].filter(Boolean);
+    let best=0; for(const a of alts) for(const t of tg) best=Math.max(best,sim(norm(a),norm(t)));
+    const v=best>=0.8?["ok","Sehr gut!",[15,50,15]]:best>=0.5?["","Fast! Hör nochmal genau hin.",10]:["bad","Nicht ganz. Hör dir die Aussprache nochmal an.",[30,40,30]];
+    res.className="micres "+v[0]; res.innerHTML=`Erkannt: <span lang="ja">${esc(alts[0])}</span><br><b>${v[1]}</b>`; haptic(v[2]);
+    anim(res,[{transform:"scale(.95)",opacity:.4},{transform:"none",opacity:1}],{duration:300,easing:DEC});
   };
-  rec.onerror=e=>{
-    got=true;
-    res.className="micres bad";
-    res.textContent = e.error==="network" ? "Die Spracherkennung braucht Internet. Ohne Netz funktioniert nur das Anhören."
-      : (e.error==="not-allowed"||e.error==="service-not-allowed") ? "Mikrofon nicht erlaubt. In Chrome beim Schloss-Symbol neben der Adresse das Mikrofon erlauben."
-      : "Nichts verstanden. Nochmal versuchen und etwas lauter sprechen.";
-  };
-  rec.onend=()=>{ if(!got){ res.className="micres bad"; res.textContent="Nichts gehört. Nochmal 🎤 antippen und gleich sprechen."; } };
-  try{ rec.start(); }catch(err){ res.textContent="Mikrofon konnte nicht gestartet werden."; }
+  rec.onerror=e=>{got=true;res.className="micres bad";res.textContent=e.error==="network"?"Die Spracherkennung braucht Internet. Ohne Netz funktioniert nur das Anhören.":(e.error==="not-allowed"||e.error==="service-not-allowed")?"Mikrofon nicht erlaubt. In Chrome beim Schloss-Symbol neben der Adresse das Mikrofon erlauben.":"Nichts verstanden. Nochmal versuchen und etwas lauter sprechen."};
+  rec.onend=()=>{btn.classList.remove("listening");if(!got){res.className="micres bad";res.textContent="Nichts gehört. Nochmal antippen und gleich sprechen."}};
+  try{rec.start()}catch(err){btn.classList.remove("listening");res.textContent="Mikrofon konnte nicht gestartet werden."}
 }
 
 // ---------- Hör-Quiz ----------
-let qScore=0,qTotal=0;
-function quizProgress(){
-  $("count").textContent=`Hör-Quiz ${cat}: ${qScore} von ${qTotal} richtig`;
-  $("bar").style.width=(qTotal?qScore/qTotal*100:0)+"%";
-}
-function startQuiz(){ qScore=0; qTotal=0; quizNext(); }
-function quizNext(){
-  quizProgress();
-  const pool=DATA[cat];
+function startQuiz(){qScore=0;qTotal=0;quizNext(false)}
+function quizNext(animate){
+  updateBar(); const v=$("view"), pool=DATA[cat];
   if(pool.length<4){
-    $("stage").innerHTML=`<div class="card" style="cursor:default"><p class="de">Zu wenige Sätze für ein Quiz</p><p class="hint">Für das Hör-Quiz braucht diese Kategorie mindestens 4 Sätze. Wähle eine andere Kategorie.</p></div>`;
+    v.innerHTML=`<div class="empty"><div class="big" style="background:var(--secondary-container);color:var(--on-secondary-container)">${I.vol}</div><h2>Zu wenige Sätze</h2><p>Für das Hör-Quiz braucht diese Kategorie mindestens 4 Sätze. Wähle oben eine andere Kategorie.</p></div>`;
     return;
   }
-  const idx=pool.map((_,i)=>i).sort(()=>Math.random()-.5);
-  const ans=idx[0];
-  const opts=idx.slice(0,4).sort(()=>Math.random()-.5);
-  const r=pool[ans];
-  $("stage").innerHTML=`
-    <div class="card" style="cursor:default">
-      <p class="hint" style="text-align:center">Hör zu: Was bedeutet das?</p>
-      <button class="bigplay" id="qplay">🔊 Abspielen</button>
-      <div class="opts" id="qopts">${opts.map(i=>`<button class="opt" data-i="${i}">${esc(pool[i][0])}</button>`).join("")}</div>
-      <div class="ans" id="qans" hidden>
+  const idx=pool.map((_,i)=>i).sort(()=>Math.random()-.5), ans=idx[0], opts=idx.slice(0,4).sort(()=>Math.random()-.5), r=pool[ans];
+  v.innerHTML=`
+    <div class="qcard" id="qcard">
+      <p class="lbl">Hör zu: Was bedeutet das?</p>
+      <button class="playbig" id="qplay" aria-label="Abspielen">${I.vol}</button>
+      <div class="opts" id="qopts">${opts.map(i=>`<button class="opt" data-i="${i}"><span>${esc(pool[i][0])}</span>${i===ans?I.check:I.close}</button>`).join("")}</div>
+      <div class="qans" id="qans" hidden>
         <p class="romaji">${romajiHTML(r[1])}</p>
-        <div class="wordbox" id="wordbox" hidden></div>
-        <p class="kana" lang="ja">${esc(r[2]||"")}</p>
+        ${r[2]?`<p class="kana" lang="ja">${esc(r[2])}</p>`:""}
       </div>
     </div>
-    <div class="row" id="qnextrow" hidden><span></span><button class="btn good" id="qnext">Weiter →</button></div>`;
-  const play=()=>speak(sayText(r));
-  $("qplay").onclick=play; play();
+    <button class="btn filled" id="qnext" hidden>Nächste Frage ${I.next}</button>`;
+  const play=()=>speak(sayText(r),$("qplay"));
+  $("qplay").onclick=play; setTimeout(play,animate&&!RM?350:50);
   $("qopts").onclick=e=>{
     const b=e.target.closest(".opt"); if(!b||$("qopts").dataset.done) return;
-    $("qopts").dataset.done=1; qTotal++;
-    const ok=+b.dataset.i===ans; if(ok) qScore++;
-    $("qopts").querySelectorAll(".opt").forEach(o=>{ if(+o.dataset.i===ans) o.classList.add("right"); else if(o===b) o.classList.add("wrong"); });
-    $("qans").hidden=false; $("qnextrow").hidden=false; quizProgress();
+    $("qopts").dataset.done=1; qTotal++; const ok=+b.dataset.i===ans; if(ok) qScore++;
+    haptic(ok?[15,50,15]:[40,40,40]);
+    $("qopts").querySelectorAll(".opt").forEach(o=>{if(+o.dataset.i===ans)o.classList.add("right");else if(o===b)o.classList.add("wrong");else o.classList.add("dim")});
+    $("qans").hidden=false; $("qnext").hidden=false;
+    anim($("qans"),[{opacity:0,transform:"translateY(8px)"},{opacity:1,transform:"none"}],{duration:300,easing:DEC});
+    anim($("qnext"),[{opacity:0,transform:"translateY(16px)"},{opacity:1,transform:"none"}],{duration:350,easing:DEC});
+    updateBar();
   };
-  $("qans").onclick=e=>{
-    const w=e.target.closest(".w"); if(!w) return;
-    const [kana,de]=GLOSS[w.dataset.w], box=$("wordbox");
-    box.innerHTML=`<b>${esc(w.textContent.replace(/[?!.,…«»]/g,""))}</b><span>${esc(de)}</span><span class="wk" lang="ja">${esc(kana)}</span>`;
-    box.hidden=false; speak(kana);
-  };
-  $("qnext").onclick=quizNext;
+  $("qans").onclick=e=>{const w=e.target.closest(".w");if(w)openWord(w)};
+  $("qnext").onclick=()=>anim($("qcard"),[{opacity:1,transform:"none"},{opacity:0,transform:"translateX(-60px)"}],{duration:200,easing:ACC},()=>{quizNext(true);anim($("qcard"),[{opacity:0,transform:"translateX(60px)"},{opacity:1,transform:"none"}],{duration:380,easing:DEC})});
+  if(animate) anim($("qplay"),[{transform:"scale(.6)"},{transform:"none"}],{duration:500,easing:"cubic-bezier(.34,1.45,.64,1)"});
 }
-$("reset").onclick=()=>{known={};store.set("jp-known",known);start()};
-start();
 
-// Offline-Speicherung
-if("serviceWorker" in navigator){
-  navigator.serviceWorker.register("sw.js").then(()=>{$("offline").textContent="✓ Offline verfügbar"}).catch(()=>{});
+// ---------- Liste + Einstellungen ----------
+function renderList(){
+  const v=$("view"), rows=DATA[cat];
+  v.innerHTML=`
+    <p class="sect">${esc(cat)} · ${rows.length} Sätze</p>
+    ${rows.length?`<ul class="list" id="plist">${rows.map(([de,ro,ka],i)=>`<li class="li">
+      <div class="txt"><p class="h">${esc(de)}</p><p class="s"><b>${esc(ro)}</b>${ka?` · <span lang="ja">${esc(ka)}</span>`:""}</p></div>
+      ${known[key(cat,i)]?`<span class="done" title="gelernt">${I.done}</span>`:""}
+      <button class="sbtn" data-i="${i}" aria-label="Anhören">${I.vol}</button>
+      <button class="sbtn" data-s="${i}" aria-label="Gross zeigen">${I.full}</button>
+      ${cat==="Eigene"?`<button class="sbtn" data-d="${i}" aria-label="Löschen">${I.del}</button>`:""}
+    </li>`).join("")}</ul>`:`<div class="empty"><h2>Noch leer</h2><p>Tippe unten rechts auf «Satz hinzufügen».</p></div>`}
+    <p class="sect">Einstellungen</p>
+    <div class="list">
+      <div class="setrow"><p>Langsam sprechen<small>Aussprache mit 70 % Tempo</small></p>
+        <label class="switch"><input type="checkbox" id="slowSw" ${slow?"checked":""} aria-label="Langsam sprechen"><span class="tr"></span><span class="th">${I.check}</span></label></div>
+      <div class="setrow"><p>Fortschritt zurücksetzen<small>Alle Kategorien wieder auf «nicht gelernt»</small></p><button class="txtbtn rp" id="resetAll">Zurücksetzen</button></div>
+      <div class="setrow"><p>Offline<small id="offTxt">${navigator.serviceWorker&&navigator.serviceWorker.controller?"Die App ist auf dem Handy gespeichert und läuft ohne Internet.":"Wird beim ersten Öffnen mit Internet gespeichert."}</small></p></div>
+    </div>
+    <div style="height:72px"></div>`;
+  const pl=$("plist");
+  if(pl){
+    pl.onclick=e=>{
+      const b=e.target.closest(".sbtn"); if(!b) return;
+      if(b.dataset.i!==undefined) speak(sayText(rows[+b.dataset.i]),b);
+      else if(b.dataset.s!==undefined) showBig(rows[+b.dataset.s]);
+      else if(b.dataset.d!==undefined){
+        const i=+b.dataset.d, removed=own[i], li=b.closest(".li");
+        anim(li,[{opacity:1,transform:"none"},{opacity:0,transform:"translateX(40px)"}],{duration:200,easing:ACC},()=>{
+          own.splice(i,1); store.set("jp-own",own); Object.keys(known).forEach(k=>{if(k.startsWith("Eigene#"))delete known[k]}); store.set("jp-known",known);
+          renderList(); updateBar();
+          snack("Satz gelöscht",()=>{own.splice(i,0,removed);store.set("jp-own",own);renderList();updateBar()});
+        });
+      }
+    };
+    if(!RM) pl.querySelectorAll(".li").forEach((li,i)=>i<14&&li.animate([{opacity:0,transform:"translateY(10px)"},{opacity:1,transform:"none"}],{duration:300,delay:i*25,easing:DEC,fill:"backwards"}));
+  }
+  $("slowSw").onchange=e=>{slow=e.target.checked;store.set("jp-slow",slow);haptic(6)};
+  $("resetAll").onclick=()=>{const old={...known};known={};store.set("jp-known",known);renderList();updateBar();
+    snack("Fortschritt zurückgesetzt",()=>{known=old;store.set("jp-known",known);renderList();updateBar()})};
 }
+
+// ---------- Eigenen Satz hinzufügen ----------
+function openAdd(){
+  openSheet(`<h2>Eigener Satz</h2>
+    <form id="addForm" class="sheet-body">
+      <div class="field"><label for="oDe">Deutsch</label><input id="oDe" required placeholder="z. B. Wo ist mein Hotel?" autocomplete="off"></div>
+      <div class="field"><label for="oRo">Lautschrift</label><input id="oRo" required placeholder="z. B. Hoteru wa doko desu ka?" autocomplete="off"></div>
+      <div class="field"><label for="oKa">Japanisch (optional)</label><input id="oKa" lang="ja" placeholder="z. B. ホテルはどこですか？" autocomplete="off"><small>Für die richtige Aussprache: Satz im Google Übersetzer eingeben und das Japanische hier einfügen.</small></div>
+      <div class="row2"><button type="button" class="btn outlined" id="addCancel" style="flex:1">Abbrechen</button><button class="btn filled" style="flex:1">${I.add} Hinzufügen</button></div>
+    </form>`,()=>{
+      $("addCancel").onclick=closeSheet;
+      $("addForm").onsubmit=e=>{
+        e.preventDefault();
+        const de=$("oDe").value.trim(),ro=$("oRo").value.trim(),ka=$("oKa").value.trim(); if(!de||!ro) return;
+        own.push([de,ro,ka,""]); store.set("jp-own",own); closeSheet(); haptic([10,40,10]);
+        cat="Eigene"; store.set("jp-cat",cat); renderChips(); renderView(true); snack("Satz hinzugefügt");
+      };
+      setTimeout(()=>$("oDe").focus(),350);
+    });
+}
+$("fab").onclick=openAdd;
+
+// ---------- Start ----------
+renderChips(); renderNav(); renderView(false);
+if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(()=>{})}
 </script>
 </body>
 </html>

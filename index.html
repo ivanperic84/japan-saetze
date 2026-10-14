@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Japan Reisesätze</title>
+<meta name="theme-color" content="#2b4a7e">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+/* Layout: one-column card trainer, category chips on top, big flip card, action row at thumb height */
+*{box-sizing:border-box}
+:root{
+  --bg:#eef1f4; --surface:#ffffff; --fg:#1b2333; --muted:#5d6878;
+  --ai:#2b4a7e; --ai-soft:#dfe6f2; --good:#2f7a52; --again:#a5512d; --line:#d3d9e2;
+  --f-jp:"Noto Sans JP","Hiragino Sans","Yu Gothic",sans-serif;
+  --f-body:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#121721; --surface:#1b2230; --fg:#e8ecf3; --muted:#9aa5b6;
+  --ai:#8fb0e8; --ai-soft:#24324b; --good:#6cc496; --again:#e39470; --line:#2d3646; color-scheme:dark}}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:16px;line-height:1.5}
+.wrap{max-width:560px;margin:0 auto;padding-inline:16px;padding-block:20px 32px;display:flex;flex-direction:column;gap:16px}
+header h1{font-size:1.5rem;margin:0}
+header p{margin:2px 0 0;color:var(--muted);font-size:.9rem}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:inherit;font-size:.9rem;border:1px solid var(--line);background:var(--surface);color:var(--fg);padding:6px 12px;border-radius:999px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ai);border-color:var(--ai);color:var(--bg)}
+.meta{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:.85rem;font-variant-numeric:tabular-nums;gap:8px;flex-wrap:wrap}
+.meta label{display:flex;align-items:center;gap:6px;cursor:pointer}
+.bar{height:4px;background:var(--line);border-radius:2px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--good);width:0;transition:width .3s}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:24px 20px;min-height:260px;display:flex;flex-direction:column;justify-content:center;gap:14px;cursor:pointer}
+.card .de{font-size:1.35rem;font-weight:700;margin:0}
+.card .hint{color:var(--muted);font-size:.85rem;margin:0}
+.ans{display:flex;flex-direction:column;gap:6px;border-top:1px dashed var(--line);padding-top:14px}
+.romaji{font-size:1.5rem;font-weight:700;color:var(--ai);margin:0;overflow-wrap:anywhere}
+.kana{font-family:var(--f-jp);font-size:1.25rem;margin:0}
+.note{color:var(--muted);font-size:.9rem;margin:0}
+.speak{align-self:flex-start;font:inherit;font-weight:700;border:0;background:var(--ai-soft);color:var(--ai);padding:10px 16px;border-radius:10px;cursor:pointer}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.btn{font:inherit;font-weight:700;border-radius:12px;padding:14px;cursor:pointer;border:2px solid transparent}
+.again{background:transparent;border-color:var(--again);color:var(--again)}
+.good{background:var(--good);color:var(--surface)}
+button:focus-visible,.card:focus-visible{outline:3px solid var(--ai);outline-offset:2px}
+.warn{background:var(--ai-soft);color:var(--fg);padding:10px 12px;border-radius:10px;font-size:.88rem;margin:0}
+.list{font-size:.9rem;border-top:1px solid var(--line);padding-top:12px}
+.list summary{cursor:pointer;font-weight:700;color:var(--ai)}
+.list ul{list-style:none;padding:0;margin:10px 0 0;display:flex;flex-direction:column;gap:8px}
+.list li{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+.list li span{min-width:0}
+.list li b{color:var(--ai)}
+.mini{font:inherit;border:0;background:var(--ai-soft);color:var(--ai);border-radius:8px;padding:6px 10px;cursor:pointer}
+.reset{font:inherit;font-size:.85rem;background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;align-self:center}
+.offline{font-size:.8rem;color:var(--muted);text-align:center;margin:0}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Japan Reisesätze</h1>
+    <p>Karte antippen → Japanisch erscheint. 🔊 spielt die Aussprache ab.</p>
+  </header>
+  <p class="warn" id="voiceWarn" hidden>Keine japanische Stimme gefunden. Android: Einstellungen → «Text-in-Sprache» → Google-Sprachausgabe → Sprachdaten installieren → Japanisch.</p>
+  <div class="chips" id="chips"></div>
+  <div class="meta">
+    <span id="count"></span>
+    <label><input type="checkbox" id="slow" checked> langsam sprechen</label>
+  </div>
+  <div class="bar"><i id="bar"></i></div>
+  <div id="stage"></div>
+  <details class="list">
+    <summary>Alle Sätze dieser Kategorie anzeigen</summary>
+    <ul id="list"></ul>
+  </details>
+  <button class="reset" id="reset">Fortschritt zurücksetzen</button>
+  <p class="offline" id="offline"></p>
+</div>
+
+<script>
+// [Deutsch, Lautschrift, Japanisch, Hinweis, (optional) Aussprache in Hiragana]
+const DATA = {
+  "Grundlagen":[
+    ["Hallo / Guten Tag","Konnichiwa","こんにちは",""],
+    ["Guten Morgen","Ohayō gozaimasu","おはようございます",""],
+    ["Danke vielmals","Arigatō gozaimasu","ありがとうございます","Der wichtigste Satz überhaupt."],
+    ["Entschuldigung (auch um Aufmerksamkeit zu bekommen)","Sumimasen","すみません","Passt fast immer: Kellner rufen, sich vorbeidrängen, sich entschuldigen."],
+    ["Ja / Nein","Hai / Iie","はい / いいえ",""],
+    ["Ich verstehe kein Japanisch","Nihongo ga wakarimasen","日本語がわかりません",""],
+    ["Sprechen Sie Englisch?","Eigo o hanasemasu ka?","英語を話せますか？",""],
+    ["Bitte (etwas anbieten / um etwas bitten)","Onegaishimasu","お願いします","Nach einem Wort anhängen: «Kore, onegaishimasu» = Das hier, bitte."],
+    ["Auf Wiedersehen","Sayōnara","さようなら","Im Alltag oft auch «Ja, mata» (bis dann)."],
+    ["Ich komme aus der Schweiz","Suisu kara kimashita","スイスから来ました",""]
+  ],
+  "Restaurant":[
+    ["Einen Tisch für zwei, bitte","Futari desu","二人です","Hände zeigen geht auch. Eine Person: «Hitori desu»."],
+    ["Das hier, bitte (auf Karte zeigen)","Kore o kudasai","これをください",""],
+    ["Die Rechnung, bitte","Okaikei onegaishimasu","お会計お願いします","Oder Hände kreuzen zu einem X."],
+    ["Wasser, bitte","Omizu o kudasai","お水をください","Wasser ist meist gratis."],
+    ["Ein Bier, bitte","Biiru hitotsu kudasai","ビール一つください",""],
+    ["Es war sehr lecker","Oishikatta desu","おいしかったです",""],
+    ["Danke für das Essen (nach dem Essen)","Gochisōsama deshita","ごちそうさまでした","Beim Gehen sagen, wird sehr geschätzt."],
+    ["Guten Appetit (vor dem Essen)","Itadakimasu","いただきます",""],
+    ["Kann ich mit Karte zahlen?","Kādo de ii desu ka?","カードでいいですか？",""],
+    ["Ohne Fleisch, bitte","Niku nashi de onegaishimasu","肉なしでお願いします",""]
+  ],
+  "Unterwegs":[
+    ["Wo ist …?","… wa doko desu ka?","…はどこですか？","Ort vorne einsetzen, z. B. «Eki wa doko desu ka?»"],
+    ["Bahnhof","Eki","駅",""],
+    ["Toilette","Toire","トイレ","«Toire wa doko desu ka?» = Wo ist die Toilette?"],
+    ["Fährt dieser Zug nach …?","Kono densha wa … ni ikimasu ka?","この電車は…に行きますか？",""],
+    ["Welches Gleis?","Nanban-sen desu ka?","何番線ですか？",""],
+    ["Ein Ticket nach …, bitte","… made, ichimai kudasai","…まで一枚ください",""],
+    ["Bitte zu dieser Adresse (Taxi)","Koko made onegaishimasu","ここまでお願いします","Dazu Adresse auf dem Handy zeigen."],
+    ["Rechts / Links / Geradeaus","Migi / Hidari / Massugu","右 / 左 / まっすぐ","","みぎ / ひだり / まっすぐ"],
+    ["Ist es weit?","Tōi desu ka?","遠いですか？",""]
+  ],
+  "Deine Route":[
+    ["Tokio","Tōkyō","東京","Bahnhof: Tōkyō-eki 東京駅","とうきょう"],
+    ["Kakunodate","Kakunodate","角館","Mit dem Akita-Shinkansen «Komachi» ab Tokio.","かくのだて"],
+    ["Kanazawa","Kanazawa","金沢","Mit dem Hokuriku-Shinkansen ab Tokio.","かなざわ"],
+    ["Kyoto","Kyōto","京都","","きょうと"],
+    ["Osaka","Ōsaka","大阪","","おおさか"],
+    ["Wo ist der Shinkansen-Bahnsteig?","Shinkansen no noriba wa doko desu ka?","新幹線の乗り場はどこですか？","","しんかんせんの のりば は どこですか"],
+    ["Eine Fahrkarte nach Kanazawa, bitte","Kanazawa made, ichimai kudasai","金沢まで一枚ください","Ortsname austauschen für andere Ziele.","かなざわまで いちまい ください"],
+    ["Reservierter Platz / Freier Platz","Shitei-seki / Jiyū-seki","指定席 / 自由席","Steht auf Tickets und Wagenanzeigen.","していせき / じゆうせき"],
+    ["Samurai-Viertel (Kakunodate)","Bukeyashiki","武家屋敷","","ぶけやしき"],
+    ["Kenroku-en Garten (Kanazawa)","Kenroku-en","兼六園","","けんろくえん"],
+    ["Fushimi-Inari-Schrein (Kyoto)","Fushimi Inari Taisha","伏見稲荷大社","","ふしみいなりたいしゃ"],
+    ["Kiyomizu-Tempel (Kyoto)","Kiyomizu-dera","清水寺","","きよみずでら"],
+    ["Dōtonbori (Osaka)","Dōtonbori","道頓堀","","どうとんぼり"],
+    ["Shinjuku / Asakusa (Tokio)","Shinjuku / Asakusa","新宿 / 浅草","","しんじゅく / あさくさ"]
+  ],
+  "Zahlen":[
+    ["1 / 2 / 3","Ichi / Ni / San","一 / 二 / 三","","いち / に / さん"],
+    ["4 / 5 / 6","Yon / Go / Roku","四 / 五 / 六","","よん / ご / ろく"],
+    ["7 / 8 / 9 / 10","Nana / Hachi / Kyū / Jū","七 / 八 / 九 / 十","","なな / はち / きゅう / じゅう"],
+    ["100 / 1000 / 10 000","Hyaku / Sen / Ichiman","百 / 千 / 一万","Japan zählt in Zehntausendern (man).","ひゃく / せん / いちまん"],
+    ["1000 Yen","Sen en","千円","","せんえん"],
+    ["Ein Stück / Zwei Stück","Hitotsu / Futatsu","一つ / 二つ","Zum Bestellen: «Hitotsu kudasai».","ひとつ / ふたつ"],
+    ["Um wie viel Uhr?","Nanji desu ka?","何時ですか？","","なんじですか"]
+  ],
+  "Einkaufen":[
+    ["Wie viel kostet das?","Kore wa ikura desu ka?","これはいくらですか？",""],
+    ["Das nehme ich","Kore ni shimasu","これにします",""],
+    ["Ich schaue nur","Miteru dake desu","見てるだけです",""],
+    ["Eine Tüte, bitte / Keine Tüte","Fukuro onegaishimasu / Fukuro iranai desu","袋お願いします / 袋いらないです","Tüten kosten oft extra.","ふくろ おねがいします / ふくろ いらないです"],
+    ["Tax-free möglich?","Menzei dekimasu ka?","免税できますか？","Pass mitnehmen."],
+    ["Haben Sie das in einer anderen Grösse?","Hoka no saizu wa arimasu ka?","他のサイズはありますか？",""]
+  ],
+  "Hotel":[
+    ["Ich habe eine Reservation","Yoyaku shite imasu","予約しています","Danach den Namen sagen."],
+    ["Kann ich das Gepäck hier lassen?","Nimotsu o azukete ii desu ka?","荷物を預けていいですか？",""],
+    ["Was ist das WLAN-Passwort?","Wai-fai no pasuwādo wa?","Wi-Fiのパスワードは？","","わいふぁいの ぱすわーど は"],
+    ["Um wie viel Uhr ist Check-out?","Chekku-auto wa nanji desu ka?","チェックアウトは何時ですか？",""]
+  ],
+  "Notfall":[
+    ["Hilfe!","Tasukete!","助けて！",""],
+    ["Bitte rufen Sie einen Arzt","Isha o yonde kudasai","医者を呼んでください","Notruf Japan: 119 (Ambulanz/Feuer), 110 (Polizei)."],
+    ["Ich habe mich verlaufen","Michi ni mayoimashita","道に迷いました",""],
+    ["Ich habe … verloren","… o nakushimashita","…をなくしました",""],
+    ["Krankenhaus","Byōin","病院",""],
+    ["Apotheke","Yakkyoku","薬局",""],
+    ["Ich habe eine Allergie","Arerugī ga arimasu","アレルギーがあります",""]
+  ]
+};
+const cats = Object.keys(DATA);
+const store = {
+  get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+};
+let known = store.get("jp-known",{});
+let cat = store.get("jp-cat",cats[0]); if(!DATA[cat]) cat=cats[0];
+let queue=[], cur=null, open=false;
+
+const $=id=>document.getElementById(id);
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const key=(c,i)=>c+"#"+i;
+const sayText=r=>r[4]||r[2];
+
+let jaVoice=null;
+function loadVoices(){
+  if(!("speechSynthesis" in window)){$("voiceWarn").hidden=false;return}
+  const vs=speechSynthesis.getVoices();
+  jaVoice=vs.find(v=>/^ja/i.test(v.lang))||null;
+  if(vs.length) $("voiceWarn").hidden=!!jaVoice;
+}
+if("speechSynthesis" in window){loadVoices();speechSynthesis.onvoiceschanged=loadVoices;setTimeout(loadVoices,1500)}else{$("voiceWarn").hidden=false}
+
+function speak(text){
+  if(!("speechSynthesis" in window)) return;
+  speechSynthesis.cancel();
+  const t=text.replace(/…/g,"、").split(" / ").join("。");
+  const u=new SpeechSynthesisUtterance(t);
+  u.lang="ja-JP"; if(jaVoice) u.voice=jaVoice;
+  u.rate=$("slow").checked?0.7:1;
+  speechSynthesis.speak(u);
+}
+
+function renderChips(){
+  $("chips").innerHTML=cats.map(c=>`<button class="chip" aria-pressed="${c===cat}" data-c="${esc(c)}">${esc(c)}</button>`).join("");
+}
+$("chips").onclick=e=>{const b=e.target.closest(".chip");if(!b)return;cat=b.dataset.c;store.set("jp-cat",cat);start()};
+
+function start(){
+  renderChips();
+  queue=DATA[cat].map((_,i)=>i).filter(i=>!known[key(cat,i)]);
+  for(let i=queue.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[queue[i],queue[j]]=[queue[j],queue[i]]}
+  renderList(); next();
+}
+function progress(){
+  const n=DATA[cat].length, k=DATA[cat].filter((_,i)=>known[key(cat,i)]).length;
+  $("count").textContent=`${cat}: ${k} von ${n} gelernt`;
+  $("bar").style.width=(k/n*100)+"%";
+}
+function next(){open=false; cur=queue.length?queue[0]:null; progress(); draw();}
+function draw(){
+  if(cur===null){
+    $("stage").innerHTML=`<div class="card" style="cursor:default;text-align:center"><p class="de">Alles gelernt in «${esc(cat)}» 🎉</p><p class="hint">Wähle eine andere Kategorie oder setze den Fortschritt zurück.</p></div>`;
+    return;
+  }
+  const r=DATA[cat][cur], [de,ro,ka,no]=r;
+  $("stage").innerHTML=`
+    <div class="card" id="card" tabindex="0" role="button" aria-label="Karte aufdecken">
+      <p class="de">${esc(de)}</p>
+      ${open?`<div class="ans">
+        <p class="romaji">${esc(ro)}</p>
+        <p class="kana" lang="ja">${esc(ka)}</p>
+        ${no?`<p class="note">${esc(no)}</p>`:""}
+        <button class="speak" id="say">🔊 Anhören</button>
+      </div>`:`<p class="hint">Antippen zum Aufdecken – erst selber laut versuchen!</p>`}
+    </div>
+    ${open?`<div class="row">
+      <button class="btn again" id="again">Nochmal üben</button>
+      <button class="btn good" id="good">Kann ich ✓</button>
+    </div>`:""}`;
+  const card=$("card");
+  const reveal=()=>{if(!open){open=true;draw();speak(sayText(r))}};
+  card.onclick=e=>{if(e.target.closest("#say"))return;reveal()};
+  card.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();reveal()}};
+  if(open){
+    $("say").onclick=e=>{e.stopPropagation();speak(sayText(r))};
+    $("again").onclick=()=>{queue.push(queue.shift());next()};
+    $("good").onclick=()=>{known[key(cat,cur)]=1;store.set("jp-known",known);queue.shift();renderList();next()};
+  }
+}
+function renderList(){
+  $("list").innerHTML=DATA[cat].map(([de,ro,ka],i)=>`<li><span>${esc(de)}<br><b>${esc(ro)}</b> <span lang="ja">${esc(ka)}</span></span><button class="mini" data-i="${i}" aria-label="Anhören">🔊</button></li>`).join("");
+}
+$("list").onclick=e=>{const b=e.target.closest(".mini");if(b)speak(sayText(DATA[cat][+b.dataset.i]))};
+$("reset").onclick=()=>{known={};store.set("jp-known",known);start()};
+start();
+
+// Offline-Speicherung
+if("serviceWorker" in navigator){
+  navigator.serviceWorker.register("sw.js").then(()=>{$("offline").textContent="✓ Offline verfügbar"}).catch(()=>{});
+}
+</script>
+</body>
+</html>

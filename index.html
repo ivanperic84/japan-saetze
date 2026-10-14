@@ -61,6 +61,28 @@ button:focus-visible,.card:focus-visible{outline:3px solid var(--ai);outline-off
 .list li b{color:var(--ai)}
 .mini{font:inherit;border:0;background:var(--ai-soft);color:var(--ai);border-radius:8px;padding:6px 10px;cursor:pointer}
 .reset{font:inherit;font-size:.85rem;background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;align-self:center}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px}
+.modes button{font:inherit;font-weight:700;border:0;border-radius:9px;padding:9px;background:none;color:var(--muted);cursor:pointer}
+.modes button[aria-pressed="true"]{background:var(--ai);color:var(--bg)}
+.tools{display:flex;flex-wrap:wrap;gap:8px}
+.micres{margin:0;font-size:.95rem;background:var(--ai-soft);border-radius:10px;padding:10px 12px}
+.micres.ok b{color:var(--good)} .micres.bad b{color:var(--again)}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{font:inherit;text-align:left;border:2px solid var(--line);background:var(--surface);color:var(--fg);border-radius:12px;padding:12px 14px;cursor:pointer}
+.opt.right{border-color:var(--good);background:color-mix(in srgb,var(--good) 14%,var(--surface))}
+.opt.wrong{border-color:var(--again);background:color-mix(in srgb,var(--again) 14%,var(--surface))}
+.bigplay{align-self:center;font:inherit;font-size:1.1rem;font-weight:700;border:0;background:var(--ai);color:var(--bg);border-radius:999px;padding:14px 26px;cursor:pointer}
+.own{display:flex;flex-direction:column;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px}
+.own h2{margin:0;font-size:1.05rem}
+.own label{display:flex;flex-direction:column;gap:4px;font-size:.85rem;color:var(--muted)}
+.own input{font:inherit;font-size:1rem;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px}
+.own .tip{margin:0;font-size:.82rem;color:var(--muted)}
+.list li .acts{display:flex;gap:6px}
+.show{position:fixed;inset:0;z-index:10;background:var(--surface);display:flex;flex-direction:column;justify-content:center;align-items:center;gap:18px;text-align:center;padding:calc(24px + env(safe-area-inset-top,0px)) 20px calc(24px + env(safe-area-inset-bottom,0px));cursor:pointer}
+.show-ja{font-family:var(--f-jp);font-size:clamp(2.4rem,11vw,5rem);line-height:1.25;margin:0;font-weight:700;overflow-wrap:anywhere}
+.show-ro{font-size:1.4rem;color:var(--ai);margin:0;font-weight:700}
+.show-de{font-size:1.05rem;color:var(--muted);margin:0}
+.show-hint{position:absolute;bottom:calc(16px + env(safe-area-inset-bottom,0px));font-size:.8rem;color:var(--muted);margin:0}
 .offline{font-size:.8rem;color:var(--muted);text-align:center;margin:0}
 @media (prefers-reduced-motion:reduce){.bar i{transition:none}}
 </style>
@@ -69,9 +91,13 @@ button:focus-visible,.card:focus-visible{outline:3px solid var(--ai);outline-off
 <div class="wrap">
   <header>
     <h1>Japan Reisesätze</h1>
-    <p>Karte antippen → Japanisch erscheint. Einzelnes Wort antippen → Bedeutung. 🔊 spielt die Aussprache ab.</p>
+    <p>Karte antippen → Japanisch erscheint. Einzelnes Wort antippen → Bedeutung. 🎤 prüft deine Aussprache, 📱 zeigt den Satz gross zum Vorzeigen.</p>
   </header>
   <p class="warn" id="voiceWarn" hidden>Keine japanische Stimme gefunden. Android: Einstellungen → «Text-in-Sprache» → Google-Sprachausgabe → Sprachdaten installieren → Japanisch.</p>
+  <div class="modes" id="modes">
+    <button data-m="learn" aria-pressed="true">📇 Lernen</button>
+    <button data-m="quiz" aria-pressed="false">🎧 Hör-Quiz</button>
+  </div>
   <div class="chips" id="chips"></div>
   <div class="meta">
     <span id="count"></span>
@@ -79,12 +105,26 @@ button:focus-visible,.card:focus-visible{outline:3px solid var(--ai);outline-off
   </div>
   <div class="bar"><i id="bar"></i></div>
   <div id="stage"></div>
+  <form class="own" id="ownForm" hidden>
+    <h2>Eigenen Satz hinzufügen</h2>
+    <label for="oDe">Deutsch<input id="oDe" required placeholder="z. B. Wo ist mein Hotel?"></label>
+    <label for="oRo">Lautschrift<input id="oRo" required placeholder="z. B. Hoteru wa doko desu ka?"></label>
+    <label for="oKa">Japanisch (optional, für die richtige Aussprache)<input id="oKa" lang="ja" placeholder="z. B. ホテルはどこですか？"></label>
+    <p class="tip">Tipp: Satz im Google Übersetzer eingeben, das Japanische kopieren und hier einfügen. Die Lautschrift steht dort unter der Übersetzung.</p>
+    <button class="btn good" type="submit">Hinzufügen</button>
+  </form>
   <details class="list">
     <summary>Alle Sätze dieser Kategorie anzeigen</summary>
     <ul id="list"></ul>
   </details>
   <button class="reset" id="reset">Fortschritt zurücksetzen</button>
   <p class="offline" id="offline"></p>
+</div>
+<div class="show" id="show" hidden role="dialog" aria-label="Zeige-Modus">
+  <p class="show-ja" id="showJa" lang="ja"></p>
+  <p class="show-ro" id="showRo"></p>
+  <p class="show-de" id="showDe"></p>
+  <p class="show-hint">Antippen zum Schliessen</p>
 </div>
 
 <script>
@@ -300,6 +340,9 @@ const store = {
   get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},
   set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 };
+let own = store.get("jp-own",[]);
+DATA["Eigene"] = own; cats.push("Eigene");
+let mode = store.get("jp-mode","learn"); if(mode!=="quiz") mode="learn";
 let known = store.get("jp-known",{});
 let cat = store.get("jp-cat",cats[0]); if(!DATA[cat]) cat=cats[0];
 let queue=[], cur=null, open=false;
@@ -307,7 +350,8 @@ let queue=[], cur=null, open=false;
 const $=id=>document.getElementById(id);
 const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const key=(c,i)=>c+"#"+i;
-const sayText=r=>r[4]||r[2];
+const sayText=r=>r[4]||r[2]||r[1];
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 const wkey=t=>t.toLowerCase().replace(/[?!.,…«»]/g,"");
 function romajiHTML(ro){
   return ro.split(/(\s+|\/)/).map(t=>{const k=wkey(t);return GLOSS[k]?`<button class="w" data-w="${esc(k)}">${esc(t)}</button>`:esc(t)}).join("");
@@ -339,17 +383,26 @@ $("chips").onclick=e=>{const b=e.target.closest(".chip");if(!b)return;cat=b.data
 
 function start(){
   renderChips();
+  document.querySelectorAll("#modes button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.m===mode));
+  $("ownForm").hidden = !(cat==="Eigene" && mode==="learn");
+  document.querySelector(".list").hidden = mode==="quiz";
+  if(mode==="quiz"){ startQuiz(); return; }
   queue=DATA[cat].map((_,i)=>i).filter(i=>!known[key(cat,i)]);
   for(let i=queue.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[queue[i],queue[j]]=[queue[j],queue[i]]}
   renderList(); next();
 }
 function progress(){
+  if(!DATA[cat].length){ $("count").textContent=`${cat}: noch leer`; $("bar").style.width="0"; return; }
   const n=DATA[cat].length, k=DATA[cat].filter((_,i)=>known[key(cat,i)]).length;
   $("count").textContent=`${cat}: ${k} von ${n} gelernt`;
   $("bar").style.width=(k/n*100)+"%";
 }
 function next(){open=false; cur=queue.length?queue[0]:null; progress(); draw();}
 function draw(){
+  if(cur===null && !DATA[cat].length){
+    $("stage").innerHTML=`<div class="card" style="cursor:default"><p class="de">Noch keine eigenen Sätze</p><p class="hint">Füge unten deinen ersten Satz hinzu, z. B. den Namen deines Hotels oder ein Gericht, das du bestellen willst.</p></div>`;
+    return;
+  }
   if(cur===null){
     $("stage").innerHTML=`<div class="card" style="cursor:default;text-align:center"><p class="de">Alles gelernt in «${esc(cat)}» 🎉</p><p class="hint">Wähle eine andere Kategorie oder setze den Fortschritt zurück.</p></div>`;
     return;
@@ -363,7 +416,12 @@ function draw(){
         <div class="wordbox" id="wordbox" hidden></div>
         <p class="kana" lang="ja">${esc(ka)}</p>
         ${no?`<p class="note">${esc(no)}</p>`:""}
-        <button class="speak" id="say">🔊 Anhören</button>
+        <div class="tools">
+          <button class="speak" id="say">🔊 Anhören</button>
+          ${SR?`<button class="speak" id="mic">🎤 Nachsprechen</button>`:""}
+          <button class="speak" id="showBtn">📱 Zeigen</button>
+        </div>
+        <p class="micres" id="micres" hidden></p>
       </div>`:`<p class="hint">Antippen zum Aufdecken – erst selber laut versuchen!</p>`}
     </div>
     ${open?`<div class="row">
@@ -373,7 +431,7 @@ function draw(){
   const card=$("card");
   const reveal=()=>{if(!open){open=true;draw();speak(sayText(r))}};
   card.onclick=e=>{
-    if(e.target.closest("#say"))return;
+    if(e.target.closest(".tools"))return;
     const w=e.target.closest(".w");
     if(w){
       const [kana,de]=GLOSS[w.dataset.w], box=$("wordbox");
@@ -385,14 +443,127 @@ function draw(){
   card.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();reveal()}};
   if(open){
     $("say").onclick=e=>{e.stopPropagation();speak(sayText(r))};
+    $("showBtn").onclick=e=>{e.stopPropagation();showBig(r)};
+    if(SR) $("mic").onclick=e=>{e.stopPropagation();listen(r)};
     $("again").onclick=()=>{queue.push(queue.shift());next()};
     $("good").onclick=()=>{known[key(cat,cur)]=1;store.set("jp-known",known);queue.shift();renderList();next()};
   }
 }
 function renderList(){
-  $("list").innerHTML=DATA[cat].map(([de,ro,ka],i)=>`<li><span>${esc(de)}<br><b>${esc(ro)}</b> <span lang="ja">${esc(ka)}</span></span><button class="mini" data-i="${i}" aria-label="Anhören">🔊</button></li>`).join("");
+  $("list").innerHTML=DATA[cat].map(([de,ro,ka],i)=>`<li><span>${esc(de)}<br><b>${esc(ro)}</b> <span lang="ja">${esc(ka||"")}</span></span><span class="acts"><button class="mini" data-i="${i}" aria-label="Anhören">🔊</button><button class="mini" data-s="${i}" aria-label="Zeigen">📱</button>${cat==="Eigene"?`<button class="mini" data-d="${i}" aria-label="Löschen">✕</button>`:""}</span></li>`).join("");
 }
-$("list").onclick=e=>{const b=e.target.closest(".mini");if(b)speak(sayText(DATA[cat][+b.dataset.i]))};
+$("list").onclick=e=>{
+  const b=e.target.closest(".mini"); if(!b) return;
+  if(b.dataset.i!==undefined) speak(sayText(DATA[cat][+b.dataset.i]));
+  else if(b.dataset.s!==undefined) showBig(DATA[cat][+b.dataset.s]);
+  else if(b.dataset.d!==undefined){
+    own.splice(+b.dataset.d,1); store.set("jp-own",own);
+    Object.keys(known).forEach(k=>{if(k.startsWith("Eigene#"))delete known[k]}); store.set("jp-known",known);
+    start();
+  }
+};
+$("ownForm").onsubmit=e=>{
+  e.preventDefault();
+  const de=$("oDe").value.trim(), ro=$("oRo").value.trim(), ka=$("oKa").value.trim();
+  if(!de||!ro) return;
+  own.push([de,ro,ka,""]); store.set("jp-own",own);
+  $("oDe").value=$("oRo").value=$("oKa").value="";
+  start();
+};
+$("modes").onclick=e=>{const b=e.target.closest("button");if(!b)return;mode=b.dataset.m;store.set("jp-mode",mode);start()};
+
+// ---------- Zeige-Modus ----------
+function showBig(r){
+  $("showJa").textContent=r[2]||r[1]; $("showRo").textContent=r[1]; $("showDe").textContent=r[0];
+  $("show").hidden=false;
+  try{ navigator.wakeLock && navigator.wakeLock.request("screen").then(l=>{showBig.lock=l}).catch(()=>{}); }catch(e){}
+}
+$("show").onclick=()=>{ $("show").hidden=true; try{showBig.lock&&showBig.lock.release()}catch(e){} };
+
+// ---------- Aussprache prüfen ----------
+function norm(t){
+  return (t||"").toLowerCase().replace(/[\u30a1-\u30f6]/g,c=>String.fromCharCode(c.charCodeAt(0)-0x60))
+    .replace(/[\s、。？！?!.,…\/・「」-]/g,"");
+}
+function sim(a,b){
+  if(!a||!b) return 0;
+  const m=a.length,n=b.length,d=Array(n+1).fill(0);
+  for(let i=1;i<=m;i++){let prev=0;for(let j=1;j<=n;j++){const t=d[j];d[j]=a[i-1]===b[j-1]?prev+1:Math.max(d[j],d[j-1]);prev=t}}
+  return 2*d[n]/(m+n);
+}
+function listen(r){
+  const res=$("micres"); if(!SR) return;
+  speechSynthesis && speechSynthesis.cancel();
+  const rec=new SR(); rec.lang="ja-JP"; rec.interimResults=false; rec.maxAlternatives=5;
+  let got=false;
+  res.hidden=false; res.className="micres"; res.textContent="🎤 Sprich jetzt …";
+  rec.onresult=e=>{
+    got=true;
+    const alts=[...e.results[0]].map(a=>a.transcript);
+    const targets=[r[2],r[4]].filter(Boolean);
+    let best=0; for(const a of alts) for(const t of targets) best=Math.max(best,sim(norm(a),norm(t)));
+    const v = best>=0.8?["ok","✓ Sehr gut!"]:best>=0.5?["","Fast! Hör nochmal genau hin und versuch es wieder."]:["bad","Nicht ganz. Hör dir die Aussprache nochmal an."];
+    res.className="micres "+v[0];
+    res.innerHTML=`Erkannt: <span lang="ja">${esc(alts[0])}</span><br><b>${v[1]}</b>`;
+  };
+  rec.onerror=e=>{
+    got=true;
+    res.className="micres bad";
+    res.textContent = e.error==="network" ? "Die Spracherkennung braucht Internet. Ohne Netz funktioniert nur das Anhören."
+      : (e.error==="not-allowed"||e.error==="service-not-allowed") ? "Mikrofon nicht erlaubt. In Chrome beim Schloss-Symbol neben der Adresse das Mikrofon erlauben."
+      : "Nichts verstanden. Nochmal versuchen und etwas lauter sprechen.";
+  };
+  rec.onend=()=>{ if(!got){ res.className="micres bad"; res.textContent="Nichts gehört. Nochmal 🎤 antippen und gleich sprechen."; } };
+  try{ rec.start(); }catch(err){ res.textContent="Mikrofon konnte nicht gestartet werden."; }
+}
+
+// ---------- Hör-Quiz ----------
+let qScore=0,qTotal=0;
+function quizProgress(){
+  $("count").textContent=`Hör-Quiz ${cat}: ${qScore} von ${qTotal} richtig`;
+  $("bar").style.width=(qTotal?qScore/qTotal*100:0)+"%";
+}
+function startQuiz(){ qScore=0; qTotal=0; quizNext(); }
+function quizNext(){
+  quizProgress();
+  const pool=DATA[cat];
+  if(pool.length<4){
+    $("stage").innerHTML=`<div class="card" style="cursor:default"><p class="de">Zu wenige Sätze für ein Quiz</p><p class="hint">Für das Hör-Quiz braucht diese Kategorie mindestens 4 Sätze. Wähle eine andere Kategorie.</p></div>`;
+    return;
+  }
+  const idx=pool.map((_,i)=>i).sort(()=>Math.random()-.5);
+  const ans=idx[0];
+  const opts=idx.slice(0,4).sort(()=>Math.random()-.5);
+  const r=pool[ans];
+  $("stage").innerHTML=`
+    <div class="card" style="cursor:default">
+      <p class="hint" style="text-align:center">Hör zu: Was bedeutet das?</p>
+      <button class="bigplay" id="qplay">🔊 Abspielen</button>
+      <div class="opts" id="qopts">${opts.map(i=>`<button class="opt" data-i="${i}">${esc(pool[i][0])}</button>`).join("")}</div>
+      <div class="ans" id="qans" hidden>
+        <p class="romaji">${romajiHTML(r[1])}</p>
+        <div class="wordbox" id="wordbox" hidden></div>
+        <p class="kana" lang="ja">${esc(r[2]||"")}</p>
+      </div>
+    </div>
+    <div class="row" id="qnextrow" hidden><span></span><button class="btn good" id="qnext">Weiter →</button></div>`;
+  const play=()=>speak(sayText(r));
+  $("qplay").onclick=play; play();
+  $("qopts").onclick=e=>{
+    const b=e.target.closest(".opt"); if(!b||$("qopts").dataset.done) return;
+    $("qopts").dataset.done=1; qTotal++;
+    const ok=+b.dataset.i===ans; if(ok) qScore++;
+    $("qopts").querySelectorAll(".opt").forEach(o=>{ if(+o.dataset.i===ans) o.classList.add("right"); else if(o===b) o.classList.add("wrong"); });
+    $("qans").hidden=false; $("qnextrow").hidden=false; quizProgress();
+  };
+  $("qans").onclick=e=>{
+    const w=e.target.closest(".w"); if(!w) return;
+    const [kana,de]=GLOSS[w.dataset.w], box=$("wordbox");
+    box.innerHTML=`<b>${esc(w.textContent.replace(/[?!.,…«»]/g,""))}</b><span>${esc(de)}</span><span class="wk" lang="ja">${esc(kana)}</span>`;
+    box.hidden=false; speak(kana);
+  };
+  $("qnext").onclick=quizNext;
+}
 $("reset").onclick=()=>{known={};store.set("jp-known",known);start()};
 start();
 
